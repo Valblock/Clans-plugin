@@ -24,7 +24,7 @@ public class ClanHomeSet {
         String clanName = getClanName(player);
 
         if (clanName == null) {
-            player.sendMessage(ChatColor.RED + "" + ChatColor.BOLD + "| " + ChatColor.RED + languageManager.get("home.no-clan"));
+            player.sendMessage(ChatColor.RED + "" + ChatColor.BOLD + plugin.getConfig().getString("Plugin_Message_Indicator", "| ") + ChatColor.RED + languageManager.get("home.no-clan"));
             return;
         }
 
@@ -33,7 +33,7 @@ public class ClanHomeSet {
 
         String leader = clansConfig.getString("clans." + clanName + ".leader");
         if (!player.getName().equals(leader)) {
-            player.sendMessage(ChatColor.RED + "" + ChatColor.BOLD + "| " + ChatColor.RED + languageManager.get("home.no-auth"));
+            player.sendMessage(ChatColor.RED + "" + ChatColor.BOLD + plugin.getConfig().getString("Plugin_Message_Indicator", "| ") + ChatColor.RED + languageManager.get("home.no-auth"));
             return;
         }
 
@@ -48,10 +48,10 @@ public class ClanHomeSet {
 
         try {
             clansConfig.save(clansFile);
-            player.sendMessage(ChatColor.GREEN + "" + ChatColor.BOLD + "| " + ChatColor.GREEN + languageManager.get("home.success"));
+            player.sendMessage(ChatColor.GREEN + "" + ChatColor.BOLD + plugin.getConfig().getString("Plugin_Message_Indicator", "| ") + ChatColor.GREEN + languageManager.get("home.success"));
         } catch (Exception e) {
             e.printStackTrace();
-            player.sendMessage(ChatColor.RED + "" + ChatColor.BOLD + "| " + ChatColor.RED + languageManager.get("home.error"));
+            player.sendMessage(ChatColor.RED + "" + ChatColor.BOLD + plugin.getConfig().getString("Plugin_Message_Indicator", "| ") + ChatColor.RED + languageManager.get("home.error"));
         }
     }
 

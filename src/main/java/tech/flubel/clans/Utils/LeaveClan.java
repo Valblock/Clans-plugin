@@ -1,6 +1,7 @@
 package tech.flubel.clans.Utils;
 
 import org.bukkit.ChatColor;
+import org.bukkit.Statistic;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
@@ -26,11 +27,11 @@ public class LeaveClan {
         String ClanName = getClanName(player);
 
         if (!config.contains("clans")) {
-            player.sendMessage(ChatColor.RED + "" + ChatColor.BOLD + "| " + ChatColor.RED + languageManager.get("leave.no-clan-err"));
+            player.sendMessage(ChatColor.RED + "" + ChatColor.BOLD + plugin.getConfig().getString("Plugin_Message_Indicator", "| ") + ChatColor.RED + languageManager.get("leave.no-clan-err"));
             return;
         }
         if(ClanName == null){
-            player.sendMessage(ChatColor.RED + "" + ChatColor.BOLD + "| " + ChatColor.RED + languageManager.get("leave.no-clan"));
+            player.sendMessage(ChatColor.RED + "" + ChatColor.BOLD + plugin.getConfig().getString("Plugin_Message_Indicator", "| ") + ChatColor.RED + languageManager.get("leave.no-clan"));
         }
 
         for (String clanName : config.getConfigurationSection("clans").getKeys(false)) {
@@ -40,7 +41,7 @@ public class LeaveClan {
 
 
                 if (player.getName().equals(leader)) {
-                    player.sendMessage(ChatColor.RED + "" + ChatColor.BOLD + "| " + ChatColor.RED + languageManager.get("leave.leader-warn"));
+                    player.sendMessage(ChatColor.RED + "" + ChatColor.BOLD + plugin.getConfig().getString("Plugin_Message_Indicator", "| ") + ChatColor.RED + languageManager.get("leave.leader-warn"));
                     return;
                 }
 
@@ -56,11 +57,24 @@ public class LeaveClan {
                 }
 
 
+            int playerKills = player.getStatistic(Statistic.PLAYER_KILLS);
+            int playerDeaths = player.getStatistic(Statistic.DEATHS);
+
+            int clanKills = config.getInt("clans." + clanName + ".kills", 0);
+            int clanDeaths = config.getInt("clans." + clanName + ".deaths", 0);
+
+            clanKills -= playerKills;
+            clanDeaths -= playerDeaths;
+
+            config.set("clans." + clanName + ".kills", clanKills);
+            config.set("clans." + clanName + ".deaths", clanDeaths);
+
+
                 try {
                     config.save(clansFile);
-                    player.sendMessage(ChatColor.GREEN + "" + ChatColor.BOLD + "| " + ChatColor.RED + languageManager.get("leave.success"));
+                    player.sendMessage(ChatColor.GREEN + "" + ChatColor.BOLD + plugin.getConfig().getString("Plugin_Message_Indicator", "| ") + ChatColor.RED + languageManager.get("leave.success"));
                 } catch (Exception e) {
-                    player.sendMessage(ChatColor.RED + "" + ChatColor.BOLD + "| " + ChatColor.RED + languageManager.get("leave.error"));
+                    player.sendMessage(ChatColor.RED + "" + ChatColor.BOLD + plugin.getConfig().getString("Plugin_Message_Indicator", "| ") + ChatColor.RED + languageManager.get("leave.error"));
                     e.printStackTrace();
                 }
                 return;

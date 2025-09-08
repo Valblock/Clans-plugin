@@ -26,7 +26,7 @@ public class ClanPvPToggle {
         String clanName = getClanName(player);
 
         if (clanName == null) {
-            player.sendMessage(ChatColor.RED + "" + ChatColor.BOLD + "| " + ChatColor.RED + languageManager.get("clan_pvp.no-clan"));
+            player.sendMessage(ChatColor.RED + "" + ChatColor.BOLD + plugin.getConfig().getString("Plugin_Message_Indicator", "| ") + ChatColor.RED + languageManager.get("clan_pvp.no-clan"));
             return;
         }
 
@@ -35,7 +35,7 @@ public class ClanPvPToggle {
 
 
         if (!clansConfig.getString("clans." + clanName + ".leader").equals(player.getName())) {
-            player.sendMessage(ChatColor.RED + "" + ChatColor.BOLD + "| " + ChatColor.RED + languageManager.get("clan_pvp.no-auth"));
+            player.sendMessage(ChatColor.RED + "" + ChatColor.BOLD + plugin.getConfig().getString("Plugin_Message_Indicator", "| ") + ChatColor.RED + languageManager.get("clan_pvp.no-auth"));
             return;
         }
         boolean currentState = clansConfig.getBoolean("clans." + clanName + ".pvp", true);
@@ -45,7 +45,7 @@ public class ClanPvPToggle {
             clansConfig.save(clansFile);
         } catch (Exception e) {
             e.printStackTrace();
-            player.sendMessage(ChatColor.RED + "" + ChatColor.BOLD + "| " + ChatColor.RED + languageManager.get("clan_pvp.error"));
+            player.sendMessage(ChatColor.RED + "" + ChatColor.BOLD + plugin.getConfig().getString("Plugin_Message_Indicator", "| ") + ChatColor.RED + languageManager.get("clan_pvp.error"));
             return;
         }
 
@@ -57,9 +57,9 @@ public class ClanPvPToggle {
                 Map<String, String> placeholders = new HashMap<>();
                 placeholders.put("status", status);
                     if(status.equals("enabled")) {
-                        member.sendMessage(ChatColor.GREEN + "" + ChatColor.BOLD + "| " + ChatColor.GREEN + languageManager.get("clan_pvp.success", placeholders));
+                        member.sendMessage(ChatColor.GREEN + "" + ChatColor.BOLD + plugin.getConfig().getString("Plugin_Message_Indicator", "| ") + ChatColor.GREEN + languageManager.get("clan_pvp.success", placeholders));
                     } else {
-                        member.sendMessage(ChatColor.RED + "" + ChatColor.BOLD + "| " + ChatColor.RED + languageManager.get("clan_pvp.success", placeholders));
+                        member.sendMessage(ChatColor.RED + "" + ChatColor.BOLD + plugin.getConfig().getString("Plugin_Message_Indicator", "| ") + ChatColor.RED + languageManager.get("clan_pvp.success", placeholders));
                     }
                 }
         }

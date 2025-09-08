@@ -30,18 +30,18 @@ public class ClanBankDeposit {
     public void BankClanDep(Player player, int amount) {
 
         if (amount <= 0) {
-            player.sendMessage(ChatColor.RED + "" + ChatColor.BOLD + "| " + ChatColor.RED + languageManager.get("bank.deposit.amount"));
+            player.sendMessage(ChatColor.RED + "" + ChatColor.BOLD + plugin.getConfig().getString("Plugin_Message_Indicator", "| ") + ChatColor.RED + languageManager.get("bank.deposit.amount"));
             return;
         }
 
         if (economy.getBalance(player) < amount) {
-            player.sendMessage(ChatColor.RED +""+ ChatColor.BOLD + "| " + ChatColor.RED + languageManager.get("bank.deposit.no-bal"));
+            player.sendMessage(ChatColor.RED +""+ ChatColor.BOLD + plugin.getConfig().getString("Plugin_Message_Indicator", "| ") + ChatColor.RED + languageManager.get("bank.deposit.no-bal"));
             return;
         }
         String clanName = getClanName(player);
 
         if (clanName == null) {
-            player.sendMessage(ChatColor.RED +""+ ChatColor.BOLD + "| " + ChatColor.RED + languageManager.get("bank.no-clan"));
+            player.sendMessage(ChatColor.RED +""+ ChatColor.BOLD + plugin.getConfig().getString("Plugin_Message_Indicator", "| ") + ChatColor.RED + languageManager.get("bank.no-clan"));
             return;
         }
 
@@ -64,7 +64,7 @@ public class ClanBankDeposit {
                 placeholders.put("player", player.getName());
                 placeholders.put("amount", String.valueOf(amount));
 
-                member.sendMessage(ChatColor.GOLD + "" + ChatColor.BOLD + "| " + ChatColor.GOLD + languageManager.get("bank.deposit.success", placeholders));
+                member.sendMessage(ChatColor.GOLD + "" + ChatColor.BOLD + plugin.getConfig().getString("Plugin_Message_Indicator", "| ") + ChatColor.GOLD + languageManager.get("bank.deposit.success", placeholders));
             }
         }
 
@@ -72,7 +72,7 @@ public class ClanBankDeposit {
             clansConfig.save(clansFile);
         } catch (IOException e) {
             e.printStackTrace();
-            player.sendMessage(ChatColor.RED + "" + ChatColor.BOLD + "| " + ChatColor.RED + languageManager.get("bank.deposit.error"));
+            player.sendMessage(ChatColor.RED + "" + ChatColor.BOLD + plugin.getConfig().getString("Plugin_Message_Indicator", "| ") + ChatColor.RED + languageManager.get("bank.deposit.error"));
             return;
         }
 

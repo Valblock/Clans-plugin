@@ -50,7 +50,7 @@ public class Requests {
         }
 
         if (!isLeaderOrCoLeader || playerClan == null) {
-            player.sendMessage(ChatColor.RED + "" + ChatColor.BOLD + "| " + ChatColor.RED + languageManager.get("join_requests.no-auth"));
+            player.sendMessage(ChatColor.RED + "" + ChatColor.BOLD + plugin.getConfig().getString("Plugin_Message_Indicator", "| ") + ChatColor.RED + languageManager.get("join_requests.no-auth"));
             return;
         }
 
@@ -60,10 +60,10 @@ public class Requests {
         List<String> requests = reqConfig.getStringList("requests." + playerClan);
 
         if (requests.isEmpty()) {
-            player.sendMessage(ChatColor.YELLOW +""+ ChatColor.BOLD + "| " + ChatColor.YELLOW + languageManager.get("join_requests.no-requests"));
+            player.sendMessage(ChatColor.YELLOW +""+ ChatColor.BOLD + plugin.getConfig().getString("Plugin_Message_Indicator", "| ") + ChatColor.YELLOW + languageManager.get("join_requests.no-requests"));
         } else {
             String prefix = clansConfig.getString("clans." + playerClan + ".prefix");
-            String TranslatedClanName = ChatColor.translateAlternateColorCodes('&', prefix);
+            String TranslatedClanName = formatClanPrefix(prefix);
 
 
             Map<String, String> placeholders = new HashMap<>();
@@ -82,4 +82,25 @@ public class Requests {
             }
         }
     }
+
+    private static String formatClanPrefix(String prefix) {
+        if (prefix == null) return "";
+
+        // Step 1: Convert hex colors (&#RRGGBB) into ChatColor.of
+        // Regex finds '&#' followed by 6 hex digits
+        java.util.regex.Pattern hexPattern = java.util.regex.Pattern.compile("&#([A-Fa-f0-9]{6})");
+        java.util.regex.Matcher matcher = hexPattern.matcher(prefix);
+        StringBuffer buffer = new StringBuffer();
+
+        while (matcher.find()) {
+            String hexCode = matcher.group(1);
+            matcher.appendReplacement(buffer, net.md_5.bungee.api.ChatColor.of("#" + hexCode).toString());
+        }
+        matcher.appendTail(buffer);
+
+        // Step 2: Convert legacy & codes
+        return net.md_5.bungee.api.ChatColor.translateAlternateColorCodes('&', buffer.toString());
+    }
+
+
 }

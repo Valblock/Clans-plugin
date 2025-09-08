@@ -27,7 +27,6 @@ public class CreateClanFolder {
             try {
                 clansFile.createNewFile();
 
-                // Create an empty clans.yml with "clans:" section
                 FileConfiguration clansConfig = YamlConfiguration.loadConfiguration(clansFile);
                 clansConfig.createSection("clans");
                 clansConfig.save(clansFile);
@@ -35,6 +34,22 @@ public class CreateClanFolder {
 
             } catch (IOException e) {
                 plugin.getLogger().severe("Could not create clans.yml file: " + e.getMessage());
+            }
+        }
+
+
+        File clansChestFile = new File(pluginFolder, "clans_chest.yml");
+        if (!clansChestFile.exists()) {
+            try {
+                clansChestFile.createNewFile();
+
+                FileConfiguration clansConfig = YamlConfiguration.loadConfiguration(clansChestFile);
+                clansConfig.createSection("chest");
+                clansConfig.save(clansChestFile);
+
+
+            } catch (IOException e) {
+                plugin.getLogger().severe("Could not create clans_chest.yml file: " + e.getMessage());
             }
         }
     }

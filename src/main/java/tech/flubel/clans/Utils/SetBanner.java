@@ -34,7 +34,7 @@ public class SetBanner {
         String clanName = getClanName(player);
 
         if (clanName == null) {
-            player.sendMessage(ChatColor.RED + "" + ChatColor.BOLD + "| " + ChatColor.RED + languageManager.get("clan_banner.no-clan"));
+            player.sendMessage(ChatColor.RED + "" + ChatColor.BOLD + plugin.getConfig().getString("Plugin_Message_Indicator", "| ") + ChatColor.RED + languageManager.get("clan_banner.no-clan"));
             return;
         }
 
@@ -42,14 +42,14 @@ public class SetBanner {
         FileConfiguration clansConfig = YamlConfiguration.loadConfiguration(clansFile);
 
         if (!clansConfig.getString("clans." + clanName + ".leader").equals(player.getName())) {
-            player.sendMessage(ChatColor.RED + "" + ChatColor.BOLD + "| " + ChatColor.RED + languageManager.get("clan_banner.no-auth"));
+            player.sendMessage(ChatColor.RED + "" + ChatColor.BOLD + plugin.getConfig().getString("Plugin_Message_Indicator", "| ") + ChatColor.RED + languageManager.get("clan_banner.no-auth"));
             return;
         }
 
         // Check if player is holding a banner
         ItemStack item = player.getInventory().getItemInMainHand();
         if (!item.getType().name().endsWith("_BANNER")) {
-            player.sendMessage(ChatColor.RED + "" + ChatColor.BOLD + "| " + ChatColor.RED + languageManager.get("clan_banner.no-banner"));
+            player.sendMessage(ChatColor.RED + "" + ChatColor.BOLD + plugin.getConfig().getString("Plugin_Message_Indicator", "| ") + ChatColor.RED + languageManager.get("clan_banner.no-banner"));
             return;
         }
 
@@ -68,10 +68,10 @@ public class SetBanner {
 
         try {
             clansConfig.save(clansFile);
-            player.sendMessage(ChatColor.GREEN + "" + ChatColor.BOLD + "| " + ChatColor.GREEN + languageManager.get("clan_banner.success"));
+            player.sendMessage(ChatColor.GREEN + "" + ChatColor.BOLD + plugin.getConfig().getString("Plugin_Message_Indicator", "| ") + ChatColor.GREEN + languageManager.get("clan_banner.success"));
         } catch (Exception e) {
             e.printStackTrace();
-            player.sendMessage(ChatColor.RED + "" + ChatColor.BOLD + "| " + ChatColor.RED + languageManager.get("clan_banner.error"));
+            player.sendMessage(ChatColor.RED + "" + ChatColor.BOLD + plugin.getConfig().getString("Plugin_Message_Indicator", "| ") + ChatColor.RED + languageManager.get("clan_banner.error"));
         }
     }
 
@@ -94,7 +94,7 @@ public class SetBanner {
         FileConfiguration clansConfig = YamlConfiguration.loadConfiguration(clansFile);
 
         if (!clansConfig.contains("clans." + clanName + ".banner.base")) {
-            player.sendMessage(ChatColor.RED + "" + ChatColor.BOLD + "| " + ChatColor.RED + languageManager.get("clan_banner.not-available"));
+            player.sendMessage(ChatColor.RED + "" + ChatColor.BOLD + plugin.getConfig().getString("Plugin_Message_Indicator", "| ") + ChatColor.RED + languageManager.get("clan_banner.not-available"));
             return;
         }
 
@@ -125,12 +125,18 @@ public class SetBanner {
             }
         }
 
-        meta.setDisplayName(ChatColor.translateAlternateColorCodes('&',clansConfig.getString("clans." + clanName + ".prefix", clanName) + "'s &fClan Banner"));
+
+        String prefix = clansConfig.getString("clans." + clanName + ".prefix", clanName);
+        String formattedPrefix = formatClanPrefix(prefix);
+
+        String displayName = formattedPrefix + "'s &fClan Banner";
+        meta.setDisplayName(ChatColor.translateAlternateColorCodes('&', displayName));
+
         meta.setPatterns(patterns);
         banner.setItemMeta(meta);
 
         player.getInventory().addItem(banner);
-        player.sendMessage(ChatColor.GREEN + "" + ChatColor.BOLD + "| " + ChatColor.GREEN + languageManager.get("clan_banner.success-giver"));
+        player.sendMessage(ChatColor.GREEN + "" + ChatColor.BOLD + plugin.getConfig().getString("Plugin_Message_Indicator", "| ") + ChatColor.GREEN + languageManager.get("clan_banner.success-giver"));
 
     }
 
@@ -151,22 +157,26 @@ public class SetBanner {
         }
         return null;
     }
-    private List<String> getClanMembers(String clanName) {
-        List<String> members = new ArrayList<>();
-        File clansFile = new File(plugin.getDataFolder(), "clans.yml");
-        FileConfiguration clansConfig = YamlConfiguration.loadConfiguration(clansFile);
 
-        if (clansConfig.contains("clans." + clanName + ".members")) {
-            members.addAll(clansConfig.getStringList("clans." + clanName + ".members"));
-        }
-        if (clansConfig.contains("clans." + clanName + ".leader")) {
-            members.add(clansConfig.getString("clans." + clanName + ".leader"));
-        }
-        if (clansConfig.contains("clans." + clanName + ".co_leader")) {
-            members.addAll(clansConfig.getStringList("clans." + clanName + ".co_leader"));
-        }
 
-        return members;
+
+    private static String formatClanPrefix(String prefix) {
+        if (prefix == null) return "";
+
+        // Step 1: Convert hex colors (&#RRGGBB) into ChatColor.of
+        // Regex finds '&#' followed by 6 hex digits
+        java.util.regex.Pattern hexPattern = java.util.regex.Pattern.compile("&#([A-Fa-f0-9]{6})");
+        java.util.regex.Matcher matcher = hexPattern.matcher(prefix);
+        StringBuffer buffer = new StringBuffer();
+
+        while (matcher.find()) {
+            String hexCode = matcher.group(1);
+            matcher.appendReplacement(buffer, net.md_5.bungee.api.ChatColor.of("#" + hexCode).toString());
+        }
+        matcher.appendTail(buffer);
+
+        // Step 2: Convert legacy & codes
+        return net.md_5.bungee.api.ChatColor.translateAlternateColorCodes('&', buffer.toString());
     }
 
 

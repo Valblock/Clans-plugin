@@ -26,7 +26,7 @@ public class ClanOnline {
 
         String clanName = getClanName(player);
         if (clanName == null) {
-            player.sendMessage(ChatColor.RED +""+ ChatColor.BOLD + "| " + ChatColor.RED + languageManager.get("online.no-clan"));
+            player.sendMessage(ChatColor.RED +""+ ChatColor.BOLD + plugin.getConfig().getString("Plugin_Message_Indicator", "| ") + ChatColor.RED + languageManager.get("online.no-clan"));
             return;
         }
 
@@ -44,9 +44,9 @@ public class ClanOnline {
 
         // Example: show online members to the player
         if (onlineClanMembers.isEmpty()) {
-            player.sendMessage(ChatColor.GRAY +""+ ChatColor.BOLD + "| " + ChatColor.GRAY + languageManager.get("online.no-online"));
+            player.sendMessage(ChatColor.GRAY +""+ ChatColor.BOLD + plugin.getConfig().getString("Plugin_Message_Indicator", "| ") + ChatColor.GRAY + languageManager.get("online.no-online"));
         } else {
-            player.sendMessage(ChatColor.GOLD +""+ ChatColor.BOLD + "| " + ChatColor.GOLD + languageManager.get("online.title"));
+            player.sendMessage(ChatColor.GOLD +""+ ChatColor.BOLD + plugin.getConfig().getString("Plugin_Message_Indicator", "| ") + ChatColor.GOLD + languageManager.get("online.title"));
             for (Player member : onlineClanMembers) {
                 if(member.getName().equals(player.getName())){
                     player.sendMessage(ChatColor.GREEN + "> " + member.getName());

@@ -29,7 +29,7 @@ public class ClanJoin {
 
         // Check if clan exists
         if (!config.contains("clans." + clanName)) {
-            player.sendMessage(ChatColor.RED + "" + ChatColor.BOLD + "| " + ChatColor.RED + languageManager.get("join.no-clan"));
+            player.sendMessage(ChatColor.RED + "" + ChatColor.BOLD + plugin.getConfig().getString("Plugin_Message_Indicator", "| ") + ChatColor.RED + languageManager.get("join.no-clan"));
             return;
         }
 
@@ -40,7 +40,7 @@ public class ClanJoin {
             String leader = config.getString("clans." + existingClan + ".leader");
 
             if (members.contains(player.getName()) || coLeaders.contains(player.getName()) || leader.equals(player.getName())) {
-                player.sendMessage(ChatColor.RED + "" + ChatColor.BOLD + "| " + ChatColor.RED + languageManager.get("join.already-member"));
+                player.sendMessage(ChatColor.RED + "" + ChatColor.BOLD + plugin.getConfig().getString("Plugin_Message_Indicator", "| ") + ChatColor.RED + languageManager.get("join.already-member"));
                 return;
             }
         }
@@ -49,13 +49,13 @@ public class ClanJoin {
         int currentMembers = memberCount.getClanMembersCount(clanName);
 
         if(currentMembers >= config.getInt("clans." + clanName + ".max_members")){
-            player.sendMessage(ChatColor.YELLOW + "" + ChatColor.BOLD + "| " + ChatColor.YELLOW +  languageManager.get("join.full"));
+            player.sendMessage(ChatColor.YELLOW + "" + ChatColor.BOLD + plugin.getConfig().getString("Plugin_Message_Indicator", "| ") + ChatColor.YELLOW +  languageManager.get("join.full"));
             return;
         }
 
         boolean JoinsEnabled = config.getBoolean("clans." + clanName + ".joins");
         if(!JoinsEnabled){
-            player.sendMessage(ChatColor.RED + "" + ChatColor.BOLD + "| " + ChatColor.RED +  languageManager.get("join.joins_disabled"));
+            player.sendMessage(ChatColor.RED + "" + ChatColor.BOLD + plugin.getConfig().getString("Plugin_Message_Indicator", "| ") + ChatColor.RED +  languageManager.get("join.joins_disabled"));
             return;
         }
 
@@ -95,18 +95,18 @@ public class ClanJoin {
 
         Player leaderPlayer = Bukkit.getPlayer(leader);
         if (leaderPlayer != null && leaderPlayer.isOnline()) {
-            leaderPlayer.sendMessage(ChatColor.GOLD + "" + ChatColor.BOLD + "| " + ChatColor.YELLOW + languageManager.get("join.join-req", placeholders));
+            leaderPlayer.sendMessage(ChatColor.GOLD + "" + ChatColor.BOLD + plugin.getConfig().getString("Plugin_Message_Indicator", "| ") + ChatColor.YELLOW + languageManager.get("join.join-req", placeholders));
         }
 
         for (String co : coLeaders) {
             Player coPlayer = Bukkit.getPlayer(co);
             if (coPlayer != null && coPlayer.isOnline()) {
-                coPlayer.sendMessage(ChatColor.GOLD + "" + ChatColor.BOLD + "| " + ChatColor.YELLOW + languageManager.get("join.join-req", placeholders));
+                coPlayer.sendMessage(ChatColor.GOLD + "" + ChatColor.BOLD + plugin.getConfig().getString("Plugin_Message_Indicator", "| ") + ChatColor.YELLOW + languageManager.get("join.join-req", placeholders));
             }
         }
 
         String prefix = config.getString("clans." + clanName + ".prefix");
-        String TranslatedClanName = ChatColor.translateAlternateColorCodes('&', prefix);
+        String TranslatedClanName = formatClanPrefix(prefix);
 
         Map<String, String> placeholders1 = new HashMap<>();
         placeholders1.put("clan_name", TranslatedClanName);
@@ -114,7 +114,25 @@ public class ClanJoin {
         String message = languageManager.get("join.success", placeholders1);
         message = message.replace(TranslatedClanName, TranslatedClanName + ChatColor.GREEN);
 
-        player.sendMessage(ChatColor.GREEN + "" + ChatColor.BOLD + "| " + ChatColor.GREEN + message);
+        player.sendMessage(ChatColor.GREEN + "" + ChatColor.BOLD + plugin.getConfig().getString("Plugin_Message_Indicator", "| ") + ChatColor.GREEN + message);
+    }
+    private static String formatClanPrefix(String prefix) {
+        if (prefix == null) return "";
+
+        // Step 1: Convert hex colors (&#RRGGBB) into ChatColor.of
+        // Regex finds '&#' followed by 6 hex digits
+        java.util.regex.Pattern hexPattern = java.util.regex.Pattern.compile("&#([A-Fa-f0-9]{6})");
+        java.util.regex.Matcher matcher = hexPattern.matcher(prefix);
+        StringBuffer buffer = new StringBuffer();
+
+        while (matcher.find()) {
+            String hexCode = matcher.group(1);
+            matcher.appendReplacement(buffer, net.md_5.bungee.api.ChatColor.of("#" + hexCode).toString());
+        }
+        matcher.appendTail(buffer);
+
+        // Step 2: Convert legacy & codes
+        return net.md_5.bungee.api.ChatColor.translateAlternateColorCodes('&', buffer.toString());
     }
 
 }

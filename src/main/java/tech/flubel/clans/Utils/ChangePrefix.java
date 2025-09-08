@@ -27,9 +27,12 @@ public class ChangePrefix {
         File clansFile = new File(plugin.getDataFolder(), "clans.yml");
         FileConfiguration config = YamlConfiguration.loadConfiguration(clansFile);
 
+        File clansChestFile = new File(plugin.getDataFolder(), "clans_chest.yml");
+        FileConfiguration Chestconfig = YamlConfiguration.loadConfiguration(clansChestFile);
+
         String clanName = getClanName(player);
         if (clanName == null) {
-            player.sendMessage(ChatColor.RED +""+ ChatColor.BOLD + "| " + ChatColor.RED + languageManager.get("change_prefix.no-clan"));
+            player.sendMessage(ChatColor.RED +""+ ChatColor.BOLD + plugin.getConfig().getString("Plugin_Message_Indicator", "| ") + ChatColor.RED + languageManager.get("change_prefix.no-clan"));
             return;
         }
 
@@ -37,11 +40,11 @@ public class ChangePrefix {
         String currentLeader = config.getString("clans." + clanName + ".leader");
 
         if (!player.getName().equals(currentLeader)) {
-            player.sendMessage(ChatColor.RED +""+ ChatColor.BOLD + "| " + ChatColor.RED + languageManager.get("change_prefix.leader-req"));
+            player.sendMessage(ChatColor.RED +""+ ChatColor.BOLD + plugin.getConfig().getString("Plugin_Message_Indicator", "| ") + ChatColor.RED + languageManager.get("change_prefix.leader-req"));
             return;
         }
 
-        String cleanedClanName = NewPrefix.replaceAll("&[a-zA-Z0-9]", "").toLowerCase();
+        String cleanedClanName = NewPrefix.replaceAll("&[a-zA-Z0-9]", "").replaceAll("&#[a-fA-F0-9]{6}", "").toLowerCase();
 
         Set<String> existingClanNames = config.getConfigurationSection("clans").getKeys(false);
 
@@ -49,7 +52,7 @@ public class ChangePrefix {
             String cleanedExistingClanName = existingClan.replaceAll("&[a-zA-Z0-9]", "").toLowerCase();
 
             if (cleanedClanName.equals(cleanedExistingClanName) && !cleanedClanName.equals(clanName.toLowerCase())) {
-                player.sendMessage(ChatColor.RED + "" + ChatColor.BOLD + "| " + ChatColor.RED + languageManager.get("change_prefix.name-taken"));
+                player.sendMessage(ChatColor.RED + "" + ChatColor.BOLD + plugin.getConfig().getString("Plugin_Message_Indicator", "| ") + ChatColor.RED + languageManager.get("change_prefix.name-taken"));
                 return;
             }
         }
@@ -60,24 +63,27 @@ public class ChangePrefix {
             String cleanedExistingClanName = BannedPrefix.toLowerCase();
 
             if (cleanedClanName.equals(cleanedExistingClanName)) {
-                player.sendMessage(ChatColor.RED + "" + ChatColor.BOLD + "| " + ChatColor.RED + languageManager.get("clan.error.banned-prefix"));
+                player.sendMessage(ChatColor.RED + "" + ChatColor.BOLD + plugin.getConfig().getString("Plugin_Message_Indicator", "| ") + ChatColor.RED + languageManager.get("clan.error.banned-prefix"));
                 return;
             }
         }
 
         if(cleanedClanName.contains(" ")){
-            player.sendMessage(ChatColor.RED + "" + ChatColor.BOLD + "| " + ChatColor.RED + languageManager.get("clan.error.no-space"));
+            player.sendMessage(ChatColor.RED + "" + ChatColor.BOLD + plugin.getConfig().getString("Plugin_Message_Indicator", "| ") + ChatColor.RED + languageManager.get("clan.error.no-space"));
             return;
         }
 
         if(config.getInt("clans." + clanName + ".prefix_change") <= 0){
-            player.sendMessage(ChatColor.RED + "" + ChatColor.BOLD + "| " + ChatColor.RED + languageManager.get("change_prefix.no-try"));
+            player.sendMessage(ChatColor.RED + "" + ChatColor.BOLD + plugin.getConfig().getString("Plugin_Message_Indicator", "| ") + ChatColor.RED + languageManager.get("change_prefix.no-try"));
             return;
         }
 
 
         String oldPath = "clans." + clanName;
         String newPath = "clans." + cleanedClanName;
+
+        String oldPathChest = "chest." + clanName;
+        String newPathChest = "chest." + cleanedClanName;
 
 
         int currentTries = config.getInt("clans." + clanName + ".prefix_change");
@@ -87,13 +93,20 @@ public class ChangePrefix {
         config.save(new File(plugin.getDataFolder(), "clans.yml"));
 
         config.set(newPath, config.getConfigurationSection(oldPath).getValues(true));
+        List<?> chestList = Chestconfig.getList(oldPathChest);
+        if (chestList != null) {
+            Chestconfig.set(newPathChest, new ArrayList<>(chestList));
+        }
 
         try {
             if(cleanedClanName.equals(clanName.toLowerCase())){
                 config.save(new File(plugin.getDataFolder(), "clans.yml"));
+                Chestconfig.save(new File(plugin.getDataFolder(), "clans_chest.yml"));
             }else {
                 config.set(oldPath, null);
+                Chestconfig.set(oldPathChest, null);
                 config.save(new File(plugin.getDataFolder(), "clans.yml"));
+                Chestconfig.save(new File(plugin.getDataFolder(), "clans_chest.yml"));
             }
 
             List<String> clanMembers = getClanMembers(cleanedClanName);
@@ -104,8 +117,8 @@ public class ChangePrefix {
 
                     Map<String, String> placeholders = new HashMap<>();
 
-                    String TranslatedClanName = ChatColor.translateAlternateColorCodes('&', old_prefix);
-                    String TranslatedClanName1 = ChatColor.translateAlternateColorCodes('&', NewPrefix);
+                    String TranslatedClanName = formatClanPrefix(old_prefix);
+                    String TranslatedClanName1 = formatClanPrefix(NewPrefix);
 
                     placeholders.put("old_name", TranslatedClanName);
                     placeholders.put("new_name", TranslatedClanName1);
@@ -115,15 +128,34 @@ public class ChangePrefix {
                     message = message.replace(TranslatedClanName1, TranslatedClanName1 + ChatColor.GREEN);
 
 
-                    member.sendMessage(ChatColor.GREEN + "" + ChatColor.BOLD + "| " + ChatColor.GREEN + message);
+                    member.sendMessage(ChatColor.GREEN + "" + ChatColor.BOLD + plugin.getConfig().getString("Plugin_Message_Indicator", "| ") + ChatColor.GREEN + message);
                 }
             }
 
         } catch (IOException e) {
-            player.sendMessage(ChatColor.RED + "" + ChatColor.BOLD + "| " + ChatColor.RED + languageManager.get("change_prefix.error"));
+            player.sendMessage(ChatColor.RED + "" + ChatColor.BOLD + plugin.getConfig().getString("Plugin_Message_Indicator", "| ") + ChatColor.RED + languageManager.get("change_prefix.error"));
             plugin.getLogger().info(e.getMessage());
         }
 
+    }
+
+    private static String formatClanPrefix(String prefix) {
+        if (prefix == null) return "";
+
+        // Step 1: Convert hex colors (&#RRGGBB) into ChatColor.of
+        // Regex finds '&#' followed by 6 hex digits
+        java.util.regex.Pattern hexPattern = java.util.regex.Pattern.compile("&#([A-Fa-f0-9]{6})");
+        java.util.regex.Matcher matcher = hexPattern.matcher(prefix);
+        StringBuffer buffer = new StringBuffer();
+
+        while (matcher.find()) {
+            String hexCode = matcher.group(1);
+            matcher.appendReplacement(buffer, net.md_5.bungee.api.ChatColor.of("#" + hexCode).toString());
+        }
+        matcher.appendTail(buffer);
+
+        // Step 2: Convert legacy & codes
+        return net.md_5.bungee.api.ChatColor.translateAlternateColorCodes('&', buffer.toString());
     }
 
 

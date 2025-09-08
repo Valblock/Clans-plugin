@@ -31,7 +31,7 @@ public class DenyJoinReq {
         String targetLower = targetName.toLowerCase();
 
         if (!clansConfig.contains("clans")) {
-            denier.sendMessage(ChatColor.RED + "" + ChatColor.BOLD + "| " + ChatColor.RED + languageManager.get("invite.deny.no-clan"));
+            denier.sendMessage(ChatColor.RED + "" + ChatColor.BOLD + plugin.getConfig().getString("Plugin_Message_Indicator", "| ") + ChatColor.RED + languageManager.get("invite.deny.no-clan"));
             return;
         }
 
@@ -54,7 +54,7 @@ public class DenyJoinReq {
                     try {
                         requestsConfig.save(requestsFile);
                     } catch (Exception e) {
-                        denier.sendMessage(ChatColor.RED + "" + ChatColor.BOLD + "| " + ChatColor.RED + languageManager.get("invite.deny.failure"));
+                        denier.sendMessage(ChatColor.RED + "" + ChatColor.BOLD + plugin.getConfig().getString("Plugin_Message_Indicator", "| ") + ChatColor.RED + languageManager.get("invite.deny.failure"));
                         e.printStackTrace();
                         return;
                     }
@@ -63,7 +63,7 @@ public class DenyJoinReq {
                     Map<String, String> placeholders = new HashMap<>();
                     placeholders.put("player", targetName);
 
-                    denier.sendMessage(ChatColor.YELLOW + "" + ChatColor.BOLD + "| " + ChatColor.YELLOW + languageManager.get("invite.deny.denier-msg", placeholders));
+                    denier.sendMessage(ChatColor.YELLOW + "" + ChatColor.BOLD + plugin.getConfig().getString("Plugin_Message_Indicator", "| ") + ChatColor.YELLOW + languageManager.get("invite.deny.denier-msg", placeholders));
 
                     Player target = Bukkit.getPlayer(targetName);
                     if (target != null && target.isOnline()) {
@@ -71,7 +71,7 @@ public class DenyJoinReq {
                         placeholders1.put("clan_name", clanName);
                         placeholders1.put("denier", denier.getName());
 
-                        target.sendMessage(ChatColor.RED + "" + ChatColor.BOLD + "| " + ChatColor.RED + languageManager.get("invite.deny.denied-msg", placeholders1));
+                        target.sendMessage(ChatColor.RED + "" + ChatColor.BOLD + plugin.getConfig().getString("Plugin_Message_Indicator", "| ") + ChatColor.RED + languageManager.get("invite.deny.denied-msg", placeholders1));
                     }
 
 
@@ -85,7 +85,7 @@ public class DenyJoinReq {
                             placeholders2.put("player", target.getName());
                             placeholders2.put("denier", denier.getName());
 
-                            member.sendMessage(ChatColor.RED + "" + ChatColor.BOLD + "| " + ChatColor.YELLOW + languageManager.get("invite.deny.clanmem", placeholders2));
+                            member.sendMessage(ChatColor.RED + "" + ChatColor.BOLD + plugin.getConfig().getString("Plugin_Message_Indicator", "| ") + ChatColor.YELLOW + languageManager.get("invite.deny.clanmem", placeholders2));
                         }
                     }
 
@@ -94,15 +94,15 @@ public class DenyJoinReq {
                     Map<String, String> placeholders = new HashMap<>();
                     placeholders.put("player", targetName);
 
-                    denier.sendMessage(ChatColor.RED + "" + ChatColor.BOLD + "| " + ChatColor.RED + languageManager.get("invite.deny.no-req", placeholders));
+                    denier.sendMessage(ChatColor.RED + "" + ChatColor.BOLD + plugin.getConfig().getString("Plugin_Message_Indicator", "| ") + ChatColor.RED + languageManager.get("invite.deny.no-req", placeholders));
                     return;
                 }
             } else {
-                denier.sendMessage(ChatColor.RED + "" + ChatColor.BOLD + "| " + ChatColor.RED + languageManager.get("invite.deny.no-auth"));
+                denier.sendMessage(ChatColor.RED + "" + ChatColor.BOLD + plugin.getConfig().getString("Plugin_Message_Indicator", "| ") + ChatColor.RED + languageManager.get("invite.deny.no-auth"));
             }
         }
 
-        denier.sendMessage(ChatColor.RED + "" + ChatColor.BOLD + "| " + ChatColor.RED + languageManager.get("invite.deny.no-auth-any"));
+        denier.sendMessage(ChatColor.RED + "" + ChatColor.BOLD + plugin.getConfig().getString("Plugin_Message_Indicator", "| ") + ChatColor.RED + languageManager.get("invite.deny.no-auth-any"));
 
 
 

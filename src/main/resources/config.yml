@@ -45,6 +45,14 @@ initial_balance: 25000
 language: en
 
 # -------------------------------------------------------
+#  The cost (in game currency) for each chest upgrade purchase by 9
+# Initial is 9 and can go upto 54
+chest_upgrade_cost: 30000
+
+
+Plugin_Message_Indicator: "| "
+
+# -------------------------------------------------------
 # The list of words that are prohibited as clan's name.
 # You can add up to 5,000 words here (They're all case in-sensitive).
 banned_prefixes:

@@ -30,14 +30,14 @@ public class InvitePlayer {
         FileConfiguration clansConfig = YamlConfiguration.loadConfiguration(clansFile);
         String clanName = getClanName(inviter);
         if (clanName == null || clanName.isEmpty()) {
-            inviter.sendMessage(ChatColor.RED + "" + ChatColor.BOLD + "| " + ChatColor.RED + languageManager.get("invite.no-clan"));
+            inviter.sendMessage(ChatColor.RED + "" + ChatColor.BOLD + plugin.getConfig().getString("Plugin_Message_Indicator", "| ") + ChatColor.RED + languageManager.get("invite.no-clan"));
             return;
         }
 
 
         if (!clansConfig.getString("clans." + clanName + ".leader").equals(inviter.getName()) &&
                 !clansConfig.getStringList("clans." + clanName + ".co_leader").contains(inviter.getName())) {
-            inviter.sendMessage(ChatColor.RED + "" + ChatColor.BOLD + "| " + ChatColor.RED + languageManager.get("invite.no-auth"));
+            inviter.sendMessage(ChatColor.RED + "" + ChatColor.BOLD + plugin.getConfig().getString("Plugin_Message_Indicator", "| ") + ChatColor.RED + languageManager.get("invite.no-auth"));
             return;
         }
 
@@ -50,17 +50,17 @@ public class InvitePlayer {
             Map<String, String> placeholders = new HashMap<>();
             placeholders.put("player", invitedPlayerName);
 
-            inviter.sendMessage(ChatColor.RED + "" + ChatColor.BOLD + "| " + ChatColor.RED + languageManager.get("invite.not-online", placeholders));
+            inviter.sendMessage(ChatColor.RED + "" + ChatColor.BOLD + plugin.getConfig().getString("Plugin_Message_Indicator", "| ") + ChatColor.RED + languageManager.get("invite.not-online", placeholders));
             return;
         }
         if (getClanName(invitedPlayer) != null) {
-            inviter.sendMessage(ChatColor.RED + "" + ChatColor.BOLD + "| " + ChatColor.RED + languageManager.get("invite.in-clan"));
+            inviter.sendMessage(ChatColor.RED + "" + ChatColor.BOLD + plugin.getConfig().getString("Plugin_Message_Indicator", "| ") + ChatColor.RED + languageManager.get("invite.in-clan"));
             return;
         }
 
 
         if(Objects.equals(invitedPlayer.getName(), inviter.getName())){
-            inviter.sendMessage(ChatColor.RED + "" + ChatColor.BOLD + "| " + ChatColor.RED + languageManager.get("invite.one-self"));
+            inviter.sendMessage(ChatColor.RED + "" + ChatColor.BOLD + plugin.getConfig().getString("Plugin_Message_Indicator", "| ") + ChatColor.RED + languageManager.get("invite.one-self"));
             return;
         }
 
@@ -68,7 +68,7 @@ public class InvitePlayer {
         int currentMembers = memberCount.getClanMembersCount(clanName);
 
         if(currentMembers >= clansConfig.getInt("clans." + clanName + ".max_members")){
-            inviter.sendMessage(ChatColor.RED + "" + ChatColor.BOLD + "| " + ChatColor.RED + languageManager.get("invite.clan-full"));
+            inviter.sendMessage(ChatColor.RED + "" + ChatColor.BOLD + plugin.getConfig().getString("Plugin_Message_Indicator", "| ") + ChatColor.RED + languageManager.get("invite.clan-full"));
             return;
         }
 
@@ -82,7 +82,7 @@ public class InvitePlayer {
             Map<String, String> placeholders = new HashMap<>();
             placeholders.put("player", invitedPlayerName);
 
-            inviter.sendMessage(ChatColor.RED + "" + ChatColor.BOLD + "| " + ChatColor.RED + languageManager.get("invite.already-member", placeholders));
+            inviter.sendMessage(ChatColor.RED + "" + ChatColor.BOLD + plugin.getConfig().getString("Plugin_Message_Indicator", "| ") + ChatColor.RED + languageManager.get("invite.already-member", placeholders));
             return;
         }
 
@@ -110,10 +110,10 @@ public class InvitePlayer {
         }
 
 
-        inviter.sendMessage(ChatColor.GREEN + "" + ChatColor.BOLD + "| " + ChatColor.GREEN + languageManager.get("invite.success"));
+        inviter.sendMessage(ChatColor.GREEN + "" + ChatColor.BOLD + plugin.getConfig().getString("Plugin_Message_Indicator", "| ") + ChatColor.GREEN + languageManager.get("invite.success"));
 
         String prefix = clansConfig.getString("clans." + clanName + ".prefix");
-        String TranslatedClanName = ChatColor.translateAlternateColorCodes('&', prefix);
+        String TranslatedClanName = formatClanPrefix(prefix);
 
 
         Map<String, String> placeholders = new HashMap<>();
@@ -124,8 +124,8 @@ public class InvitePlayer {
         message = message.replace(TranslatedClanName, TranslatedClanName + ChatColor.GREEN);
 
 
-        invitedPlayer.sendMessage(ChatColor.GREEN + "" + ChatColor.BOLD + "| " + ChatColor.GREEN + message);
-        invitedPlayer.sendMessage(ChatColor.YELLOW + "" + ChatColor.BOLD + "| " + ChatColor.YELLOW + languageManager.get("invite.invited-actions"));
+        invitedPlayer.sendMessage(ChatColor.GREEN + "" + ChatColor.BOLD + plugin.getConfig().getString("Plugin_Message_Indicator", "| ") + ChatColor.GREEN + message);
+        invitedPlayer.sendMessage(ChatColor.YELLOW + "" + ChatColor.BOLD + plugin.getConfig().getString("Plugin_Message_Indicator", "| ") + ChatColor.YELLOW + languageManager.get("invite.invited-actions"));
 
 
 
@@ -134,7 +134,7 @@ public class InvitePlayer {
             InvitesConfig.set("invites." + invitedPlayerName, null);
             try {
                 InvitesConfig.save(invitationsFile);
-                invitedPlayer.sendMessage(ChatColor.RED + "" + ChatColor.BOLD + "| " + ChatColor.RED + languageManager.get("invite.expired"));
+                invitedPlayer.sendMessage(ChatColor.RED + "" + ChatColor.BOLD + plugin.getConfig().getString("Plugin_Message_Indicator", "| ") + ChatColor.RED + languageManager.get("invite.expired"));
             } catch (IOException e) {
                 plugin.getLogger().severe("Could not save invites file after expiration: " + e.getMessage());
             }
@@ -163,13 +163,12 @@ public class InvitePlayer {
 
         String Inviter = InvitesConfig.getString("invites." + invitedplayer.getName());
         if(Inviter == null){
-            invitedplayer.sendMessage(ChatColor.RED + "" + ChatColor.BOLD + "| " + ChatColor.RED + languageManager.get("invite.null-invited"));
+            invitedplayer.sendMessage(ChatColor.RED + "" + ChatColor.BOLD + plugin.getConfig().getString("Plugin_Message_Indicator", "| ") + ChatColor.RED + languageManager.get("invite.null-invited"));
             return;
         }
 
         String clannam = getClanName(Bukkit.getPlayer(Inviter));
 
-        plugin.getLogger().info(clannam);
 
         AddPlayer addPlayer = new AddPlayer(plugin, languageManager);
         addPlayer.PlayerAdder(clannam,invitedplayer);
@@ -182,7 +181,7 @@ public class InvitePlayer {
 
         String Inviter = InvitesConfig.getString("invites." + invitedplayer.getName());
         if(Inviter == null){
-            invitedplayer.sendMessage(ChatColor.RED + "" + ChatColor.BOLD + "| " + ChatColor.RED + languageManager.get("invite.null-invited"));
+            invitedplayer.sendMessage(ChatColor.RED + "" + ChatColor.BOLD + plugin.getConfig().getString("Plugin_Message_Indicator", "| ") + ChatColor.RED + languageManager.get("invite.null-invited"));
             return;
         }
         Player inviter = Bukkit.getPlayer(Inviter);
@@ -191,10 +190,30 @@ public class InvitePlayer {
         Map<String, String> placeholders = new HashMap<>();
         placeholders.put("player", invitedplayer.getName());
 
-        inviter.sendMessage(ChatColor.RED +""+ChatColor.BOLD + "| "+ ChatColor.RED + languageManager.get("invite.reject-invite", placeholders));
-        invitedplayer.sendMessage(ChatColor.RED +""+ChatColor.BOLD + "| "+ ChatColor.RED + languageManager.get("invite.reject-invite-player"));
+        inviter.sendMessage(ChatColor.RED +""+ChatColor.BOLD + plugin.getConfig().getString("Plugin_Message_Indicator", "| ")+ ChatColor.RED + languageManager.get("invite.reject-invite", placeholders));
+        invitedplayer.sendMessage(ChatColor.RED +""+ChatColor.BOLD + plugin.getConfig().getString("Plugin_Message_Indicator", "| ")+ ChatColor.RED + languageManager.get("invite.reject-invite-player"));
 
         InvitesConfig.set("invites." + invitedplayer.getName() , "null");
+    }
+
+
+    private static String formatClanPrefix(String prefix) {
+        if (prefix == null) return "";
+
+        // Step 1: Convert hex colors (&#RRGGBB) into ChatColor.of
+        // Regex finds '&#' followed by 6 hex digits
+        java.util.regex.Pattern hexPattern = java.util.regex.Pattern.compile("&#([A-Fa-f0-9]{6})");
+        java.util.regex.Matcher matcher = hexPattern.matcher(prefix);
+        StringBuffer buffer = new StringBuffer();
+
+        while (matcher.find()) {
+            String hexCode = matcher.group(1);
+            matcher.appendReplacement(buffer, net.md_5.bungee.api.ChatColor.of("#" + hexCode).toString());
+        }
+        matcher.appendTail(buffer);
+
+        // Step 2: Convert legacy & codes
+        return net.md_5.bungee.api.ChatColor.translateAlternateColorCodes('&', buffer.toString());
     }
 
 

@@ -28,7 +28,7 @@ public class ClanChat {
     public void sendClanChatMessage(Player sender, String message) {
         String clanName = getClanName(sender);
         if (clanName == null) {
-            sender.sendMessage(ChatColor.RED + "" + ChatColor.BOLD + "| " + ChatColor.RED + languageManager.get("chat.no-clan"));
+            sender.sendMessage(ChatColor.RED + "" + ChatColor.BOLD + plugin.getConfig().getString("Plugin_Message_Indicator", "| ") + ChatColor.RED + languageManager.get("chat.no-clan"));
             return;
         }
 

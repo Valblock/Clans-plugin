@@ -25,7 +25,7 @@ public class TpClanHome {
         String clanName = getClanName(player);
 
         if (clanName == null) {
-            player.sendMessage(ChatColor.RED +""+ ChatColor.BOLD + "| " + ChatColor.RED + languageManager.get("clan_home.no-clan"));
+            player.sendMessage(ChatColor.RED +""+ ChatColor.BOLD + plugin.getConfig().getString("Plugin_Message_Indicator", "| ") + ChatColor.RED + languageManager.get("clan_home.no-clan"));
             return; // Stop execution if the player is not in a clan
         }
 
@@ -35,7 +35,7 @@ public class TpClanHome {
 
         // Check if the clan has a home set
         if (!clansConfig.contains("clans." + clanName + ".home")) {
-            player.sendMessage(ChatColor.RED +""+ ChatColor.BOLD + "| " + ChatColor.RED + languageManager.get("clan_home.no-home"));
+            player.sendMessage(ChatColor.RED +""+ ChatColor.BOLD + plugin.getConfig().getString("Plugin_Message_Indicator", "| ") + ChatColor.RED + languageManager.get("clan_home.no-home"));
             return;
         }
 
@@ -49,7 +49,7 @@ public class TpClanHome {
 
         // Check if the world is valid and exists
         if (plugin.getServer().getWorld(worldName) == null) {
-            player.sendMessage(ChatColor.RED +""+ ChatColor.BOLD + "| " + ChatColor.RED + languageManager.get("clan_home.no-world"));
+            player.sendMessage(ChatColor.RED +""+ ChatColor.BOLD + plugin.getConfig().getString("Plugin_Message_Indicator", "| ") + ChatColor.RED + languageManager.get("clan_home.no-world"));
             return;
         }
 
@@ -58,7 +58,7 @@ public class TpClanHome {
 
         // Teleport the player to the clan home location
         player.teleport(homeLocation);
-        player.sendMessage(ChatColor.GREEN +""+ ChatColor.BOLD + "| " + ChatColor.GREEN + languageManager.get("clan_home.success-tp"));
+        player.sendMessage(ChatColor.GREEN +""+ ChatColor.BOLD + plugin.getConfig().getString("Plugin_Message_Indicator", "| ") + ChatColor.GREEN + languageManager.get("clan_home.success-tp"));
     }
 
     // Method to get the player's clan name

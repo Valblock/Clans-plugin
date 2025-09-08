@@ -29,7 +29,7 @@ public class Promote {
 
         // Check if the clan exists
         if (clanName == null) {
-            leader.sendMessage(ChatColor.RED +""+ ChatColor.BOLD + "| " + ChatColor.RED + languageManager.get("promote.no-clan"));
+            leader.sendMessage(ChatColor.RED +""+ ChatColor.BOLD + plugin.getConfig().getString("Plugin_Message_Indicator", "| ") + ChatColor.RED + languageManager.get("promote.no-clan"));
             return;
         }
 
@@ -40,7 +40,7 @@ public class Promote {
 
         // Check if the leader is promoting the target player
         if (!leader.getName().equals(leaderName)) {
-            leader.sendMessage(ChatColor.RED +""+ ChatColor.BOLD + "| " + ChatColor.RED + languageManager.get("promote.no-auth"));
+            leader.sendMessage(ChatColor.RED +""+ ChatColor.BOLD + plugin.getConfig().getString("Plugin_Message_Indicator", "| ") + ChatColor.RED + languageManager.get("promote.no-auth"));
             return;
         }
 
@@ -49,7 +49,7 @@ public class Promote {
             Map<String, String> placeholders = new HashMap<>();
             placeholders.put("player", targetName);
 
-            leader.sendMessage(ChatColor.RED +""+ ChatColor.BOLD + "| " + ChatColor.RED + languageManager.get("promote.no-member", placeholders));
+            leader.sendMessage(ChatColor.RED +""+ ChatColor.BOLD + plugin.getConfig().getString("Plugin_Message_Indicator", "| ") + ChatColor.RED + languageManager.get("promote.no-member", placeholders));
             return;
         }
 
@@ -57,7 +57,7 @@ public class Promote {
         if (coLeaders.contains(targetName)) {
             Map<String, String> placeholders = new HashMap<>();
             placeholders.put("player", targetName);
-            leader.sendMessage(ChatColor.YELLOW +""+ ChatColor.BOLD + "| " + ChatColor.YELLOW + languageManager.get("promote.already-promoted", placeholders));
+            leader.sendMessage(ChatColor.YELLOW +""+ ChatColor.BOLD + plugin.getConfig().getString("Plugin_Message_Indicator", "| ") + ChatColor.YELLOW + languageManager.get("promote.already-promoted", placeholders));
             return;
         }
 
@@ -75,9 +75,9 @@ public class Promote {
             Map<String, String> placeholders = new HashMap<>();
             placeholders.put("player", targetName);
 
-            leader.sendMessage(ChatColor.GREEN +""+ ChatColor.BOLD + "| " + ChatColor.GREEN + languageManager.get("promote.success", placeholders));
+            leader.sendMessage(ChatColor.GREEN +""+ ChatColor.BOLD + plugin.getConfig().getString("Plugin_Message_Indicator", "| ") + ChatColor.GREEN + languageManager.get("promote.success", placeholders));
         } catch (Exception e) {
-            leader.sendMessage(ChatColor.RED +""+ ChatColor.BOLD + "| " + ChatColor.RED + languageManager.get("promote.error"));
+            leader.sendMessage(ChatColor.RED +""+ ChatColor.BOLD + plugin.getConfig().getString("Plugin_Message_Indicator", "| ") + ChatColor.RED + languageManager.get("promote.error"));
             e.printStackTrace();
         }
     }

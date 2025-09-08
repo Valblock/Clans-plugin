@@ -29,14 +29,14 @@ public class ClanBankWithdraw {
 
     public void withdrawFromClan(Player player, int amount) {
         if (amount <= 0) {
-            player.sendMessage(ChatColor.RED + "" + ChatColor.BOLD + "| " + ChatColor.RED + languageManager.get("bank.withdrawal.amount"));
+            player.sendMessage(ChatColor.RED + "" + ChatColor.BOLD + plugin.getConfig().getString("Plugin_Message_Indicator", "| ") + ChatColor.RED + languageManager.get("bank.withdrawal.amount"));
             return;
         }
 
         String clanName = getClanName(player);
 
         if (clanName == null) {
-            player.sendMessage(ChatColor.RED + "" + ChatColor.BOLD + "| " + ChatColor.RED + languageManager.get("bank.no-clan"));
+            player.sendMessage(ChatColor.RED + "" + ChatColor.BOLD + plugin.getConfig().getString("Plugin_Message_Indicator", "| ") + ChatColor.RED + languageManager.get("bank.no-clan"));
             return;
         }
 
@@ -45,13 +45,13 @@ public class ClanBankWithdraw {
 
         if (!clansConfig.getString("clans." + clanName + ".leader").equals(player.getName()) &&
                 !clansConfig.getStringList("clans." + clanName + ".co_leader").contains(player.getName())) {
-            player.sendMessage(ChatColor.RED + "" + ChatColor.BOLD + "| " + ChatColor.RED + languageManager.get("bank.withdrawal.no-auth"));
+            player.sendMessage(ChatColor.RED + "" + ChatColor.BOLD + plugin.getConfig().getString("Plugin_Message_Indicator", "| ") + ChatColor.RED + languageManager.get("bank.withdrawal.no-auth"));
             return;
         }
         int currentBalance = clansConfig.getInt("clans." + clanName + ".balance");
 
         if (currentBalance < amount) {
-            player.sendMessage(ChatColor.RED + "" + ChatColor.BOLD + "| " + ChatColor.RED + languageManager.get("bank.withdrawal.no-fund"));
+            player.sendMessage(ChatColor.RED + "" + ChatColor.BOLD + plugin.getConfig().getString("Plugin_Message_Indicator", "| ") + ChatColor.RED + languageManager.get("bank.withdrawal.no-fund"));
             return;
         }
 
@@ -67,7 +67,7 @@ public class ClanBankWithdraw {
                 placeholders.put("player", player.getName());
                 placeholders.put("amount", String.valueOf(amount));
 
-                member.sendMessage(ChatColor.YELLOW + "" + ChatColor.BOLD + "| " + ChatColor.YELLOW + languageManager.get("bank.withdrawal.success", placeholders));
+                member.sendMessage(ChatColor.YELLOW + "" + ChatColor.BOLD + plugin.getConfig().getString("Plugin_Message_Indicator", "| ") + ChatColor.YELLOW + languageManager.get("bank.withdrawal.success", placeholders));
             }
         }
 
@@ -75,7 +75,7 @@ public class ClanBankWithdraw {
             clansConfig.save(clansFile);
         } catch (IOException e) {
             e.printStackTrace();
-            player.sendMessage(ChatColor.RED + "" + ChatColor.BOLD + "| " + ChatColor.RED + languageManager.get("bank.withdrawal.error"));
+            player.sendMessage(ChatColor.RED + "" + ChatColor.BOLD + plugin.getConfig().getString("Plugin_Message_Indicator", "| ") + ChatColor.RED + languageManager.get("bank.withdrawal.error"));
         }
     }
 

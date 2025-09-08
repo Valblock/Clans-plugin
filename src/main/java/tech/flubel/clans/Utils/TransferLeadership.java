@@ -29,7 +29,7 @@ public class TransferLeadership {
 
         String clanName = getClanName(leader);
         if (clanName == null) {
-            leader.sendMessage(ChatColor.RED +""+ ChatColor.BOLD + "| " + ChatColor.RED + languageManager.get("transfer.no-clan"));
+            leader.sendMessage(ChatColor.RED +""+ ChatColor.BOLD + plugin.getConfig().getString("Plugin_Message_Indicator", "| ") + ChatColor.RED + languageManager.get("transfer.no-clan"));
             return;
         }
 
@@ -40,7 +40,7 @@ public class TransferLeadership {
 
         // Check if the current player is the leader
         if (!leader.getName().equals(currentLeader)) {
-            leader.sendMessage(ChatColor.RED +""+ ChatColor.BOLD + "| " + ChatColor.RED + languageManager.get("transfer.leader-req"));
+            leader.sendMessage(ChatColor.RED +""+ ChatColor.BOLD + plugin.getConfig().getString("Plugin_Message_Indicator", "| ") + ChatColor.RED + languageManager.get("transfer.leader-req"));
             return;
         }
 
@@ -50,7 +50,7 @@ public class TransferLeadership {
             Map<String, String> placeholders = new HashMap<>();
             placeholders.put("player", targetName);
 
-            leader.sendMessage(ChatColor.RED +""+ ChatColor.BOLD + "| " + ChatColor.RED + languageManager.get("transfer.not-member", placeholders));
+            leader.sendMessage(ChatColor.RED +""+ ChatColor.BOLD + plugin.getConfig().getString("Plugin_Message_Indicator", "| ") + ChatColor.RED + languageManager.get("transfer.not-member", placeholders));
             return;
         }
 
@@ -76,7 +76,7 @@ public class TransferLeadership {
         if (target != null) {
 
             String prefix = config.getString("clans." + clanName + ".prefix");
-            String TranslatedClanName = ChatColor.translateAlternateColorCodes('&', prefix);
+            String TranslatedClanName = formatClanPrefix(prefix);
 
 
             Map<String, String> placeholders = new HashMap<>();
@@ -85,7 +85,7 @@ public class TransferLeadership {
             String message = languageManager.get("transfer.success-new-leader", placeholders);
             message = message.replace(TranslatedClanName, TranslatedClanName + ChatColor.GREEN);
 
-            target.sendMessage(ChatColor.GREEN + "" + ChatColor.BOLD + "| " + ChatColor.GREEN + message);
+            target.sendMessage(ChatColor.GREEN + "" + ChatColor.BOLD + plugin.getConfig().getString("Plugin_Message_Indicator", "| ") + ChatColor.GREEN + message);
         }
 
 
@@ -98,7 +98,7 @@ public class TransferLeadership {
 
                 String message = languageManager.get("transfer.success-members", placeholders);
 
-                member.sendMessage(ChatColor.GREEN + "" + ChatColor.BOLD + "| " + ChatColor.GREEN + message);
+                member.sendMessage(ChatColor.GREEN + "" + ChatColor.BOLD + plugin.getConfig().getString("Plugin_Message_Indicator", "| ") + ChatColor.GREEN + message);
             }
         }
         try {
@@ -107,9 +107,9 @@ public class TransferLeadership {
             Map<String, String> placeholders = new HashMap<>();
             placeholders.put("new_leader", targetName);
 
-            leader.sendMessage(ChatColor.GREEN +""+ ChatColor.BOLD + "| " + ChatColor.GREEN + languageManager.get("transfer.success-old-leader", placeholders));
+            leader.sendMessage(ChatColor.GREEN +""+ ChatColor.BOLD + plugin.getConfig().getString("Plugin_Message_Indicator", "| ") + ChatColor.GREEN + languageManager.get("transfer.success-old-leader", placeholders));
         } catch (Exception e) {
-            leader.sendMessage(ChatColor.RED +""+ ChatColor.BOLD + "| " +  ChatColor.RED + languageManager.get("transfer.error"));
+            leader.sendMessage(ChatColor.RED +""+ ChatColor.BOLD + plugin.getConfig().getString("Plugin_Message_Indicator", "| ") +  ChatColor.RED + languageManager.get("transfer.error"));
             e.printStackTrace();
         }
     }
@@ -147,5 +147,24 @@ public class TransferLeadership {
         }
 
         return members;
+    }
+
+    private static String formatClanPrefix(String prefix) {
+        if (prefix == null) return "";
+
+        // Step 1: Convert hex colors (&#RRGGBB) into ChatColor.of
+        // Regex finds '&#' followed by 6 hex digits
+        java.util.regex.Pattern hexPattern = java.util.regex.Pattern.compile("&#([A-Fa-f0-9]{6})");
+        java.util.regex.Matcher matcher = hexPattern.matcher(prefix);
+        StringBuffer buffer = new StringBuffer();
+
+        while (matcher.find()) {
+            String hexCode = matcher.group(1);
+            matcher.appendReplacement(buffer, net.md_5.bungee.api.ChatColor.of("#" + hexCode).toString());
+        }
+        matcher.appendTail(buffer);
+
+        // Step 2: Convert legacy & codes
+        return net.md_5.bungee.api.ChatColor.translateAlternateColorCodes('&', buffer.toString());
     }
 }

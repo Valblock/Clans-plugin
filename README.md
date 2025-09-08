@@ -18,28 +18,34 @@ The Clans Plugin is the ultimate tool for fostering teamwork and competition on 
    - Invite, promote, demote, or kick members.
    - Transfer leadership to other members.
 3. **Clan Chat**: Communicate privately with your clan using /cc or /clan chat.
-4. **Clan Home**:
+4. **Clan Chest**: A virtual clan Chest shared amongst clan members that can also be upgraded (9-54).
+5. **Clan Home**:
    - Set a home location for your clan.
    - Teleport to the clan home anytime.
-5. **Clan Banner**: Set a clan Banner to assert Land Dominance.
-6. **Clan Upgrades**: Expand your clan's player slots with upgrades.
-7. **Join Requests**:
+6. **Clan Banner**: Set a clan Banner to assert Land Dominance.
+6. **Pvp Management**: Leaders can now enable or disable pvp amongst clan members (own and allied clans).
+7. **Clan Enemies/Allies**: Clans can now declare Enemies and Alliance.
+8. **Clan Upgrades**: Expand your clan's player slots with upgrades.
+9. **Join Requests**:
    - Send requests to join clans.
    - Accept or deny join requests as a leader.
    - Toggle Clan Join status.
-8. **Economy Integration**: Requires Vault to manage clan creation costs and upgrades.
-9. **PlaceholderAPI Support**: Display clan-related placeholders anywhere on your server.
-10. **Highly Configurable**: Customize settings like clan creation costs, max members, and more.
-11. **Multi-Language Support**: Plugin supports upto 6 languages that are en, fr, dt, ru, tr, cn.
+10. **Economy Integration**: Requires Vault to manage clan creation costs and upgrades.
+11. **PlaceholderAPI Support**: Display clan-related placeholders anywhere on your server.
+12. **Highly Configurable**: Customize settings like clan creation costs, max members, and more.
+13. **Multi-Language Support**: Plugin supports up to 6 languages that are en, fr, dt, ru, tr, cn.
+14. **Hex Colored Clan Names**: Clan names now support custom 6-digit hex color codes (e.g. #178ad6).
 
 ## Placeholders
 These placeholders are available when using [PlaceholderAPI](https://www.spigotmc.org/resources/placeholderapi.6245/):
 
 - `%clans_name%` → Shows the player's clan name
+- `%clans_name_cm%` → Shows the player's clan name (for ChatManager Only)
 - `%clans_badge%` → Shows the player's clan badge
 - `%clans_list_<#>_name%` → Shows the name of the clan at that position in the leaderboard
 - `%clans_list_<#>_leader%` → Shows the leader of the clan at that position
 - `%clans_list_<#>_balance%` → Shows the balance of the clan at that position
+- `%clans_list_<#>_kdr%` → Shows the KDR of the clan at that position
 
 
 ## Installation

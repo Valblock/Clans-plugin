@@ -25,7 +25,7 @@ public class ClanBalanceViewer {
         String clanName = getClanName(player);
 
         if (clanName == null) {
-            player.sendMessage(ChatColor.RED +""+ ChatColor.BOLD + "| " + ChatColor.RED + languageManager.get("bank.no-clan"));
+            player.sendMessage(ChatColor.RED +""+ ChatColor.BOLD + plugin.getConfig().getString("Plugin_Message_Indicator", "| ") + ChatColor.RED + languageManager.get("bank.no-clan"));
             return;
         }
 
@@ -42,7 +42,7 @@ public class ClanBalanceViewer {
         message = message.replace(String.valueOf(clanbalance), ChatColor.GREEN + "" + ChatColor.BOLD + "$" +clanbalance + ChatColor.YELLOW);
 
 
-        player.sendMessage(ChatColor.GREEN + "" + ChatColor.BOLD + "| " + ChatColor.YELLOW + message);
+        player.sendMessage(ChatColor.GREEN + "" + ChatColor.BOLD + plugin.getConfig().getString("Plugin_Message_Indicator", "| ") + ChatColor.YELLOW + message);
 
     }
 

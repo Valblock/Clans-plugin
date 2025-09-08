@@ -20,11 +20,11 @@ public class ReloadConfig {
     public void reloadConfig(CommandSender sender) {
         if (sender.hasPermission("clans.admin")) {
             plugin.reloadConfig();
-            sender.sendMessage(ChatColor.GREEN + "" + ChatColor.BOLD + "| " + ChatColor.GREEN + languageManager.get("config.success"));
+            sender.sendMessage(ChatColor.GREEN + "" + ChatColor.BOLD + plugin.getConfig().getString("Plugin_Message_Indicator", "| ") + ChatColor.GREEN + languageManager.get("config.success"));
             plugin.setLanguageManager(new LanguageManager(plugin));
             FileConfiguration config = plugin.getConfig();
         } else {
-            sender.sendMessage(ChatColor.RED + "" + ChatColor.BOLD + "| " + ChatColor.RED + languageManager.get("config.no-perm"));
+            sender.sendMessage(ChatColor.RED + "" + ChatColor.BOLD + plugin.getConfig().getString("Plugin_Message_Indicator", "| ") + ChatColor.RED + languageManager.get("config.no-perm"));
         }
     }
 }

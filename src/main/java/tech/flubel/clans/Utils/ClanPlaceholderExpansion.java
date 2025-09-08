@@ -1,7 +1,8 @@
 package tech.flubel.clans.Utils;
 
 import me.clip.placeholderapi.expansion.PlaceholderExpansion;
-import org.bukkit.ChatColor;
+
+import net.md_5.bungee.api.ChatColor;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.configuration.file.FileConfiguration;
@@ -50,6 +51,9 @@ public class ClanPlaceholderExpansion extends PlaceholderExpansion {
         if (identifier.equals("name")) {
             return getPlayerClan(player);
         }
+        if (identifier.equals("name_cm")) {
+            return getPlayerClanChatManager(player);
+        }
         if (identifier.equals("badge")) {
             return getPlayerClanBadge(player);
         }
@@ -67,11 +71,34 @@ public class ClanPlaceholderExpansion extends PlaceholderExpansion {
             if (clansConfig.getString("clans." + clanName + ".leader").equals(player.getName()) ||
                     clansConfig.getStringList("clans." + clanName + ".co_leader").contains(player.getName()) ||
                     clansConfig.getStringList("clans." + clanName + ".members").contains(player.getName())) {
-                return clansConfig.getString("clans." + clanName + ".prefix");
+                return formatClanPrefix(clansConfig.getString("clans." + clanName + ".prefix"));
             }
         }
         return "";
     }
+
+    private String getPlayerClanChatManager(Player player) {
+        File clansFile = new File(plugin.getDataFolder(), "clans.yml");
+        FileConfiguration clansConfig = YamlConfiguration.loadConfiguration(clansFile);
+
+        for (String clanName : clansConfig.getConfigurationSection("clans").getKeys(false)) {
+            if (clansConfig.getString("clans." + clanName + ".leader").equals(player.getName()) ||
+                    clansConfig.getStringList("clans." + clanName + ".co_leader").contains(player.getName()) ||
+                    clansConfig.getStringList("clans." + clanName + ".members").contains(player.getName())) {
+
+                String prefix = clansConfig.getString("clans." + clanName + ".prefix");
+
+                // Remove & only if followed by #
+                if (prefix != null) {
+                    prefix = prefix.replaceAll("&(?=#)", "");
+                }
+
+                return prefix;
+            }
+        }
+        return "";
+    }
+
 
     private String getTopClanInfo(String identifier) {
         File clansFile = new File(plugin.getDataFolder(), "clans.yml");
@@ -108,12 +135,21 @@ public class ClanPlaceholderExpansion extends PlaceholderExpansion {
 
             switch (type.toLowerCase()) {
                 case "name":
-                    return ChatColor.translateAlternateColorCodes('&',
-                            clansConfig.getString("clans." + clanName + ".prefix", clanName));
+                    return (formatClanPrefix(clansConfig.getString("clans." + clanName + ".prefix", clanName)));
                 case "leader":
                     return clansConfig.getString("clans." + clanName + ".leader", "---");
                 case "balance":
                     return String.valueOf(clansConfig.getDouble("clans." + clanName + ".balance", 0.0));
+                case "kdr":
+                    int clanKills = clansConfig.getInt("clans." + clanName + ".kills", 0);
+                    int clanDeaths = clansConfig.getInt("clans." + clanName + ".deaths", 0);
+
+                    if (clanDeaths == 0) {
+                        return String.valueOf(clanKills);
+                    }
+
+                    double kdr = (double) clanKills / clanDeaths;
+                    return String.format("%.1f", kdr);
                 default:
                     return "---";
             }
@@ -133,18 +169,36 @@ public class ClanPlaceholderExpansion extends PlaceholderExpansion {
 
                 String prefix = clansConfig.getString("clans." + clanName + ".prefix");
 
-                if (prefix != null) {
-                    String colorCode = "";
-                    if (prefix.startsWith("&")) {
-                        colorCode = prefix.substring(0, 2);
+                if (prefix != null && !prefix.isEmpty()) {
+                    String colorCodes = "";
+
+                    // Handle hex color if present
+                    if (prefix.startsWith("&#") && prefix.length() >= 8) {
+                        String hex = "#" + prefix.substring(2, 8);
+                        try {
+                            colorCodes += ChatColor.of(hex);
+                        } catch (IllegalArgumentException e) {
+                            plugin.getLogger().warning("Invalid hex in clan prefix: " + prefix);
+                        }
                     }
 
-                    if (!colorCode.isEmpty() && ChatColor.getByChar(colorCode.charAt(1)) != null) {
-                        prefix = colorCode + "🛡";
-                    } else {
-                        prefix = "&6🛡";
+                    // Handle legacy & codes
+                    for (int i = 0; i < prefix.length(); i++) {
+                        if (prefix.charAt(i) == '&' && i + 1 < prefix.length()) {
+                            char code = prefix.charAt(i + 1);
+                            if (ChatColor.getByChar(code) != null) {
+                                colorCodes += ChatColor.getByChar(code);
+                            }
+                        } else if (Character.isLetter(prefix.charAt(i)) || Character.isDigit(prefix.charAt(i))) {
+                            break;
+                        }
                     }
+
+                    prefix = colorCodes + "🛡";
+                } else {
+                    prefix = ChatColor.GOLD + "🛡";
                 }
+
 
                 return prefix;
             }
@@ -152,6 +206,30 @@ public class ClanPlaceholderExpansion extends PlaceholderExpansion {
 
         return "";
     }
+
+
+
+
+
+    private static String formatClanPrefix(String prefix) {
+        if (prefix == null) return "";
+
+        // Step 1: Convert hex colors (&#RRGGBB) into ChatColor.of
+        // Regex finds '&#' followed by 6 hex digits
+        java.util.regex.Pattern hexPattern = java.util.regex.Pattern.compile("&#([A-Fa-f0-9]{6})");
+        java.util.regex.Matcher matcher = hexPattern.matcher(prefix);
+        StringBuffer buffer = new StringBuffer();
+
+        while (matcher.find()) {
+            String hexCode = matcher.group(1);
+            matcher.appendReplacement(buffer, net.md_5.bungee.api.ChatColor.of("#" + hexCode).toString());
+        }
+        matcher.appendTail(buffer);
+
+        // Step 2: Convert legacy & codes
+        return net.md_5.bungee.api.ChatColor.translateAlternateColorCodes('&', buffer.toString());
+    }
+
 
 
 }

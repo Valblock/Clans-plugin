@@ -1,9 +1,9 @@
 package tech.flubel.clans;
 
-import com.earth2me.essentials.Essentials;
 import net.milkbowl.vault.economy.Economy;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
+import org.bukkit.Statistic;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.file.FileConfiguration;
@@ -12,6 +12,9 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
+import org.bukkit.event.entity.PlayerDeathEvent;
+import org.bukkit.event.inventory.InventoryCloseEvent;
+import org.bukkit.event.player.PlayerCommandPreprocessEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -59,6 +62,8 @@ public final class Clans extends JavaPlugin implements Listener {
 
         Metrics metrics = new Metrics(this,25416);
 
+
+
         saveDefaultConfig();
 
 
@@ -90,12 +95,19 @@ public final class Clans extends JavaPlugin implements Listener {
         getLogger().info("\u001B[38;2;23;138;214m   ╚██████╗███████╗██║  ██║██║ ╚████║███████║\u001B[0m");
         getLogger().info("\u001B[38;2;23;138;214m    ╚═════╝╚══════╝╚═╝  ╚═╝╚═╝  ╚═══╝╚══════╝\u001B[0m");
         getLogger().info(" \u001B[0m");
-        getLogger().info("\u001B[38;2;225;215;0m                 Version: 1.5.0               \u001B[0m");
+        getLogger().info("\u001B[38;2;225;215;0m                 Version: 1.6.0               \u001B[0m");
         getLogger().info("\u001B[38;2;0;255;0m                 Plugin Started               \u001B[0m");
         getLogger().info(" \u001B[0m");
         getLogger().info("\u001B[38;2;23;138;214m                (Made by Flubel)              \u001B[0m");
         getLogger().info(" \u001B[0m");
         getLogger().info("\u001B[38;2;23;138;214m================================================\u001B[0m");
+
+
+        if (getServer().getPluginManager().isPluginEnabled("Fcore")) {
+            getLogger().info("\u001B[38;2;0;255;0m Fcore detected, enabling Fcore integration...");
+        } else {
+            getLogger().warning("\u001B[38;2;255;0;0mFcore not found. Running in standalone mode.");
+        }
     }
 
     private void saveLangFile(String fileName) {
@@ -123,7 +135,7 @@ public final class Clans extends JavaPlugin implements Listener {
         getLogger().info("\u001B[38;2;23;138;214m   ╚██████╗███████╗██║  ██║██║ ╚████║███████║\u001B[0m");
         getLogger().info("\u001B[38;2;23;138;214m    ╚═════╝╚══════╝╚═╝  ╚═╝╚═╝  ╚═══╝╚══════╝\u001B[0m");
         getLogger().info(" \u001B[0m");
-         getLogger().info("\u001B[38;2;225;215;0m                 Version: 1.5.0               \u001B[0m");
+         getLogger().info("\u001B[38;2;225;215;0m                 Version: 1.6.0               \u001B[0m");
            getLogger().info("\u001B[38;2;255;0;0m                 Plugin Stopped               \u001B[0m");
         getLogger().info(" \u001B[0m");
         getLogger().info("\u001B[38;2;23;138;214m                (Made by Flubel)              \u001B[0m");
@@ -133,12 +145,26 @@ public final class Clans extends JavaPlugin implements Listener {
 
 
     @EventHandler
+    public void onCommand(PlayerCommandPreprocessEvent event) {
+        if (event.getMessage().equalsIgnoreCase("/papi reload")) {
+            Bukkit.getScheduler().runTaskLater(this, () -> {
+                new ClanPlaceholderExpansion(this).register();
+            }, 40L);
+        }
+    }
+
+    @EventHandler
     public void onJoin(PlayerJoinEvent event) {
         Player player = event.getPlayer();
         if (player.isOp() && latestVersion != null) {
             String current = getDescription().getVersion();
             if (!current.equalsIgnoreCase(latestVersion)) {
                 player.sendMessage(ChatColor.GOLD + "" + ChatColor.BOLD + "| [Clans] " + ChatColor.YELLOW + "A new version is available: " + latestVersion + " (you are on " + current + ")");
+            }
+            if (getServer().getPluginManager().isPluginEnabled("Fcore")) {
+                player.sendMessage(ChatColor.GOLD + "" + ChatColor.BOLD + "| [Clans] " + ChatColor.GREEN + "Fcore detected, Plugin will now work to its full extent.");
+            } else {
+                player.sendMessage(ChatColor.GOLD + "" + ChatColor.BOLD + "| [Clans] " + ChatColor.RED + "Fcore not found. Features like offline player kicking will not be enabled.");
             }
         }
     }
@@ -178,13 +204,13 @@ public final class Clans extends JavaPlugin implements Listener {
         Player player = (Player) sender;
 
         if (args.length < 1) {
-            player.sendMessage(ChatColor.GOLD + "" + ChatColor.BOLD + "| " + ChatColor.WHITE + languageManager.get("clan.info.usage"));
+            player.sendMessage(ChatColor.GOLD + "" + ChatColor.BOLD + this.getConfig().getString("Plugin_Message_Indicator", "| ") + ChatColor.WHITE + languageManager.get("clan.info.usage"));
             return true;
         }
 
         if (command.getName().equalsIgnoreCase("cc")) {
             if (args.length < 1) {
-                player.sendMessage(ChatColor.GOLD + "" + ChatColor.BOLD + "| " + ChatColor.WHITE + languageManager.get("clan.info.short-chat"));
+                player.sendMessage(ChatColor.GOLD + "" + ChatColor.BOLD + this.getConfig().getString("Plugin_Message_Indicator", "| ") + ChatColor.WHITE + languageManager.get("clan.info.short-chat"));
                 return true;
             }
             String message = String.join(" ", args);
@@ -195,7 +221,7 @@ public final class Clans extends JavaPlugin implements Listener {
 
         if (args[0].equalsIgnoreCase("chat")) {
             if (args.length < 2) {
-                player.sendMessage(ChatColor.GOLD + "" + ChatColor.BOLD + "| " + ChatColor.WHITE + languageManager.get("clan.info.chat"));
+                player.sendMessage(ChatColor.GOLD + "" + ChatColor.BOLD + this.getConfig().getString("Plugin_Message_Indicator", "| ") + ChatColor.WHITE + languageManager.get("clan.info.chat"));
                 return true;
             }
 
@@ -207,15 +233,15 @@ public final class Clans extends JavaPlugin implements Listener {
 
         switch (args[0]) {
             case "top":
-                ListClans.ClanLister(player, languageManager);
+                ListClans.ClanLister(player, languageManager, this);
                 return true;
             case "create":
                 if (args.length < 2 || args[1].isEmpty()) {
-                    player.sendMessage(ChatColor.GOLD + "" + ChatColor.BOLD + "| " + ChatColor.WHITE + languageManager.get("clan.info.name-req"));
+                    player.sendMessage(ChatColor.GOLD + "" + ChatColor.BOLD + this.getConfig().getString("Plugin_Message_Indicator", "| ") + ChatColor.WHITE + languageManager.get("clan.info.name-req"));
                     return true;
                 }
                 if (args[1].length() >= 20) {
-                    player.sendMessage(ChatColor.GOLD + "" + ChatColor.BOLD + "| " + ChatColor.WHITE + languageManager.get("clan.info.name-limit"));
+                    player.sendMessage(ChatColor.GOLD + "" + ChatColor.BOLD + this.getConfig().getString("Plugin_Message_Indicator", "| ") + ChatColor.WHITE + languageManager.get("clan.info.name-limit"));
                     return true;
                 }
                 String clanName = args[1];
@@ -223,7 +249,7 @@ public final class Clans extends JavaPlugin implements Listener {
                 return true;
             case "invite": {
                 if (args.length < 2 || args[1].isEmpty()) {
-                    player.sendMessage(ChatColor.GOLD + "" + ChatColor.BOLD + "| " + ChatColor.WHITE + languageManager.get("clan.info.player-name"));
+                    player.sendMessage(ChatColor.GOLD + "" + ChatColor.BOLD + this.getConfig().getString("Plugin_Message_Indicator", "| ") + ChatColor.WHITE + languageManager.get("clan.info.player-name"));
                     return true;
                 }
                 String playerNameToBeInvited = args[1];
@@ -251,7 +277,7 @@ public final class Clans extends JavaPlugin implements Listener {
                 return true;
             case "promote":
                 if (args.length < 2 || args[1].isEmpty()) {
-                    player.sendMessage(ChatColor.GOLD + "" + ChatColor.BOLD + "| " + ChatColor.WHITE + languageManager.get("clan.info.nprom"));
+                    player.sendMessage(ChatColor.GOLD + "" + ChatColor.BOLD + this.getConfig().getString("Plugin_Message_Indicator", "| ") + ChatColor.WHITE + languageManager.get("clan.info.nprom"));
                     return true;
                 }
                 Promote promote = new Promote(this, this.languageManager);
@@ -259,7 +285,7 @@ public final class Clans extends JavaPlugin implements Listener {
                 return true;
             case "demote":
                 if (args.length < 2 || args[1].isEmpty()) {
-                    player.sendMessage(ChatColor.GOLD + "" + ChatColor.BOLD + "| " + ChatColor.WHITE + languageManager.get("clan.info.ndemo"));
+                    player.sendMessage(ChatColor.GOLD + "" + ChatColor.BOLD + this.getConfig().getString("Plugin_Message_Indicator", "| ") + ChatColor.WHITE + languageManager.get("clan.info.ndemo"));
                     return true;
                 }
                 Demote demote = new Demote(this, this.languageManager);
@@ -267,7 +293,7 @@ public final class Clans extends JavaPlugin implements Listener {
                 return true;
             case "kick":
                 if (args.length < 2 || args[1].isEmpty()) {
-                    player.sendMessage(ChatColor.GOLD + "" + ChatColor.BOLD + "| " + ChatColor.WHITE + languageManager.get("clan.info.mem-kick"));
+                    player.sendMessage(ChatColor.GOLD + "" + ChatColor.BOLD + this.getConfig().getString("Plugin_Message_Indicator", "| ") + ChatColor.WHITE + languageManager.get("clan.info.mem-kick"));
                     return true;
                 }
                 Kick kick = new Kick(this, this.languageManager);
@@ -275,7 +301,7 @@ public final class Clans extends JavaPlugin implements Listener {
                 return true;
             case "transfer":
                 if (args.length < 2 || args[1].isEmpty()) {
-                    player.sendMessage(ChatColor.GOLD + "" + ChatColor.BOLD + "| " + ChatColor.WHITE + languageManager.get("clan.info.transfer"));
+                    player.sendMessage(ChatColor.GOLD + "" + ChatColor.BOLD + this.getConfig().getString("Plugin_Message_Indicator", "| ") + ChatColor.WHITE + languageManager.get("clan.info.transfer"));
                     return true;
                 }
                 TransferLeadership transferLeadership = new TransferLeadership(this, this.languageManager);
@@ -283,7 +309,7 @@ public final class Clans extends JavaPlugin implements Listener {
                 return true;
             case "join":
                 if (args.length < 2 || args[1].isEmpty()) {
-                    player.sendMessage(ChatColor.GOLD + "" + ChatColor.BOLD + "| " + ChatColor.WHITE + languageManager.get("clan.info.null-clan"));
+                    player.sendMessage(ChatColor.GOLD + "" + ChatColor.BOLD + this.getConfig().getString("Plugin_Message_Indicator", "| ") + ChatColor.WHITE + languageManager.get("clan.info.null-clan"));
                     return true;
                 }
                 ClanJoin clanJoin = new ClanJoin(this, this.languageManager);
@@ -291,7 +317,7 @@ public final class Clans extends JavaPlugin implements Listener {
                 return true;
             case "raccept":
                 if (args.length < 2 || args[1].isEmpty()) {
-                    player.sendMessage(ChatColor.GOLD + "" + ChatColor.BOLD + "| " + ChatColor.WHITE + languageManager.get("clan.info.naccept"));
+                    player.sendMessage(ChatColor.GOLD + "" + ChatColor.BOLD + this.getConfig().getString("Plugin_Message_Indicator", "| ") + ChatColor.WHITE + languageManager.get("clan.info.naccept"));
                     return true;
                 }
                 AcceptorJoinReq acceptorJoinReq = new AcceptorJoinReq(this, this.languageManager);
@@ -299,7 +325,7 @@ public final class Clans extends JavaPlugin implements Listener {
                 return true;
             case "rdeny":
                 if (args.length < 2 || args[1].isEmpty()) {
-                    player.sendMessage(ChatColor.GOLD + "" + ChatColor.BOLD + "| " + ChatColor.WHITE + languageManager.get("clan.info.ndeny"));
+                    player.sendMessage(ChatColor.GOLD + "" + ChatColor.BOLD + this.getConfig().getString("Plugin_Message_Indicator", "| ") + ChatColor.WHITE + languageManager.get("clan.info.ndeny"));
                     return true;
                 }
                 DenyJoinReq denyJoinReq = new DenyJoinReq(this, this.languageManager);
@@ -352,15 +378,22 @@ public final class Clans extends JavaPlugin implements Listener {
                 player.sendMessage(ChatColor.GREEN + "/clan getbanner " + ChatColor.WHITE + languageManager.get("clan.clan_help_descriptions.getbanner"));
                 player.sendMessage(ChatColor.GREEN + "/clan requests " + ChatColor.WHITE + languageManager.get("clan.clan_help_descriptions.requests"));
                 player.sendMessage(ChatColor.GREEN + "/clan upgrade " + ChatColor.WHITE + languageManager.get("clan.clan_help_descriptions.upgrade"));
+                player.sendMessage(ChatColor.GREEN + "/clan chest | /clan storage" + ChatColor.WHITE + languageManager.get("clan.clan_help_descriptions.chest"));
                 player.sendMessage(ChatColor.DARK_GREEN + "/clan pvp " + ChatColor.WHITE + languageManager.get("clan.clan_help_descriptions.pvp"));
                 player.sendMessage(ChatColor.DARK_GREEN + "/clan transfer <player> " + ChatColor.WHITE + languageManager.get("clan.clan_help_descriptions.transfer"));
                 player.sendMessage(ChatColor.DARK_GREEN + "/clan togglejoin " + ChatColor.WHITE + languageManager.get("clan.clan_help_descriptions.togglejoin"));
                 player.sendMessage(ChatColor.DARK_GREEN + "/clan sethome " + ChatColor.WHITE + languageManager.get("clan.clan_help_descriptions.sethome"));
                 player.sendMessage(ChatColor.DARK_GREEN + "/clan change <new_prefix> " + ChatColor.WHITE + languageManager.get("clan.clan_help_descriptions.change"));
                 player.sendMessage(ChatColor.DARK_GREEN + "/clan setbanner " + ChatColor.WHITE + languageManager.get("clan.clan_help_descriptions.setbanner"));
+                player.sendMessage(ChatColor.DARK_GREEN + "/clan upgradestorage " + ChatColor.WHITE + languageManager.get("clan.clan_help_descriptions.upgradestorage"));
+                player.sendMessage(ChatColor.DARK_GREEN + "/clan war | /clan enemy " + ChatColor.WHITE + languageManager.get("clan.clan_help_descriptions.enemy"));
+                player.sendMessage(ChatColor.DARK_GREEN + "/clan ally " + ChatColor.WHITE + languageManager.get("clan.clan_help_descriptions.ally"));
+                player.sendMessage(ChatColor.DARK_GREEN + "/clan unenemy " + ChatColor.WHITE + languageManager.get("clan.clan_help_descriptions.unenemy"));
+                player.sendMessage(ChatColor.DARK_GREEN + "/clan unally " + ChatColor.WHITE + languageManager.get("clan.clan_help_descriptions.unally"));
                 player.sendMessage(ChatColor.RED + "/clan reload " + ChatColor.WHITE + languageManager.get("clan.clan_help_descriptions.reload"));
                 player.sendMessage(ChatColor.RED + "/clan delete " + ChatColor.WHITE + languageManager.get("clan.clan_help_descriptions.delete"));
                 player.sendMessage(ChatColor.RED + "/clan updater " + ChatColor.WHITE + languageManager.get("clan.clan_help_descriptions.updater"));
+                player.sendMessage(ChatColor.RED + "/clan updateconf " + ChatColor.WHITE + languageManager.get("clan.clan_help_descriptions.updateconf"));
                 return true;
             case "pinfo":
                 player.sendMessage(ChatColor.YELLOW + languageManager.get("clan.general"));
@@ -368,7 +401,7 @@ public final class Clans extends JavaPlugin implements Listener {
                 return true;
             case "deposit":
                 if (args.length < 2) {
-                    player.sendMessage(ChatColor.GOLD + "" + ChatColor.BOLD + "| " +  ChatColor.WHITE + languageManager.get("clan.info.deposit"));
+                    player.sendMessage(ChatColor.GOLD + "" + ChatColor.BOLD + this.getConfig().getString("Plugin_Message_Indicator", "| ") +  ChatColor.WHITE + languageManager.get("clan.info.deposit"));
                     return true;
                 }
 
@@ -376,7 +409,7 @@ public final class Clans extends JavaPlugin implements Listener {
                 try {
                     amount = Integer.parseInt(args[1]);
                 } catch (NumberFormatException e) {
-                    player.sendMessage(ChatColor.GOLD + "" + ChatColor.BOLD + "| " +  ChatColor.WHITE + languageManager.get("clan.info.bad-amount"));
+                    player.sendMessage(ChatColor.GOLD + "" + ChatColor.BOLD + this.getConfig().getString("Plugin_Message_Indicator", "| ") +  ChatColor.WHITE + languageManager.get("clan.info.bad-amount"));
                     return true;
                 }
 
@@ -385,7 +418,7 @@ public final class Clans extends JavaPlugin implements Listener {
                 return true;
             case "withdraw":
                 if (args.length < 2) {
-                    player.sendMessage(ChatColor.GOLD + "" + ChatColor.BOLD + "| " +  ChatColor.WHITE + languageManager.get("clan.info.withdrawal"));
+                    player.sendMessage(ChatColor.GOLD + "" + ChatColor.BOLD + this.getConfig().getString("Plugin_Message_Indicator", "| ") +  ChatColor.WHITE + languageManager.get("clan.info.withdrawal"));
                     return true;
                 }
 
@@ -393,7 +426,7 @@ public final class Clans extends JavaPlugin implements Listener {
                 try {
                     amount1 = Integer.parseInt(args[1]);
                 } catch (NumberFormatException e) {
-                    player.sendMessage(ChatColor.GOLD + "" + ChatColor.BOLD + "| " +  ChatColor.WHITE + languageManager.get("clan.info.bad-amount"));
+                    player.sendMessage(ChatColor.GOLD + "" + ChatColor.BOLD + this.getConfig().getString("Plugin_Message_Indicator", "| ") +  ChatColor.WHITE + languageManager.get("clan.info.bad-amount"));
                     return true;
                 }
 
@@ -411,7 +444,7 @@ public final class Clans extends JavaPlugin implements Listener {
             case "delete":
                 DeleteClan deleteClan = new DeleteClan(this, this.languageManager);
                 if (args.length < 2 || args[1].isEmpty()) {
-                    player.sendMessage(ChatColor.GOLD + "" + ChatColor.BOLD + "| " + ChatColor.WHITE + languageManager.get("clan.info.delerror"));
+                    player.sendMessage(ChatColor.GOLD + "" + ChatColor.BOLD + this.getConfig().getString("Plugin_Message_Indicator", "| ") + ChatColor.WHITE + languageManager.get("clan.info.delerror"));
                     return true;
                 }
 
@@ -421,7 +454,7 @@ public final class Clans extends JavaPlugin implements Listener {
                 ChangePrefix changePrefix = new ChangePrefix(this, this.languageManager);
 
                 if (args.length < 2 || args[1].isEmpty()) {
-                    player.sendMessage(ChatColor.GOLD + "" + ChatColor.BOLD + "| " + ChatColor.WHITE + languageManager.get("clan.info.no-name"));
+                    player.sendMessage(ChatColor.GOLD + "" + ChatColor.BOLD + this.getConfig().getString("Plugin_Message_Indicator", "| ") + ChatColor.WHITE + languageManager.get("clan.info.no-name"));
                     return true;
                 }
 
@@ -443,10 +476,12 @@ public final class Clans extends JavaPlugin implements Listener {
                 if (player.hasPermission("clans.admin") && latestVersion != null) {
                     String current = getDescription().getVersion();
                     if (!current.equalsIgnoreCase(latestVersion)) {
-                        player.sendMessage(ChatColor.GOLD + "" + ChatColor.BOLD + "| [Clans] " + ChatColor.YELLOW + languageManager.get("updater.new-version") + latestVersion + " (" + languageManager.get("updater.current-version") + current + ")");
+                        player.sendMessage(ChatColor.GOLD + "" + ChatColor.BOLD + this.getConfig().getString("Plugin_Message_Indicator", "| ") + ChatColor.YELLOW + languageManager.get("updater.new-version") + latestVersion + " (" + languageManager.get("updater.current-version") + current + ")");
+                    }else {
+                        player.sendMessage(ChatColor.GOLD + "" + ChatColor.BOLD + this.getConfig().getString("Plugin_Message_Indicator", "| ") + ChatColor.YELLOW + languageManager.get("updater.latest-version"));
                     }
-                }else {
-                    player.sendMessage(ChatColor.GOLD + "" + ChatColor.BOLD + "| [Clans] " + ChatColor.YELLOW + languageManager.get("updater.latest-version"));
+                } else {
+                    player.sendMessage(ChatColor.RED + "" + ChatColor.BOLD + this.getConfig().getString("Plugin_Message_Indicator", "| ") + ChatColor.RED + languageManager.get("clans.info.no-perm"));
                 }
                 return true;
             case "setbanner":
@@ -457,6 +492,65 @@ public final class Clans extends JavaPlugin implements Listener {
                 SetBanner setBanner1 = new SetBanner(this, this.languageManager);
                 setBanner1.getClanBanner(player);
                 return true;
+            case "war":
+            case "enemy":
+                EnemiesorAllies enemiesorAllies = new EnemiesorAllies(this, this.languageManager);
+
+                if (args.length < 2 || args[1].isEmpty()) {
+                    player.sendMessage(ChatColor.GOLD + "" + ChatColor.BOLD + this.getConfig().getString("Plugin_Message_Indicator", "| ") + ChatColor.WHITE + languageManager.get("enemies.no-name"));
+                    return true;
+                }
+                enemiesorAllies.SetEnemies(player, args[1]);
+
+                return true;
+            case "ally":
+                EnemiesorAllies enemiesorAllies1 = new EnemiesorAllies(this, this.languageManager);
+
+                if (args.length < 2 || args[1].isEmpty()) {
+                    player.sendMessage(ChatColor.GOLD + "" + ChatColor.BOLD + this.getConfig().getString("Plugin_Message_Indicator", "| ") + ChatColor.WHITE + languageManager.get("allies.no-name"));
+                    return true;
+                }
+                enemiesorAllies1.SetAllies(player, args[1]);
+
+                return true;
+            case "unenemy":
+                EnemiesorAllies enemiesorAllies3 = new EnemiesorAllies(this, this.languageManager);
+
+                if (args.length < 2 || args[1].isEmpty()) {
+                    player.sendMessage(ChatColor.GOLD + "" + ChatColor.BOLD + this.getConfig().getString("Plugin_Message_Indicator", "| ") + ChatColor.WHITE + languageManager.get("enemies.no-name"));
+                    return true;
+                }
+                enemiesorAllies3.RemEnemies(player, args[1]);
+
+                return true;
+            case "unally":
+                EnemiesorAllies enemiesorAllies4 = new EnemiesorAllies(this, this.languageManager);
+
+                if (args.length < 2 || args[1].isEmpty()) {
+                    player.sendMessage(ChatColor.GOLD + "" + ChatColor.BOLD + this.getConfig().getString("Plugin_Message_Indicator", "| ") + ChatColor.WHITE + languageManager.get("allies.no-name"));
+                    return true;
+                }
+                enemiesorAllies4.RemAllies(player, args[1]);
+
+                return true;
+            case "chest":
+            case "storage":
+                ClanChest clanChest = new ClanChest(this, this.languageManager);
+                clanChest.OpenInventory(player);
+
+                return true;
+            case "upgradestorage":
+                ClanChest clanChestUpg = new ClanChest(this, this.languageManager);
+                clanChestUpg.UpgradeClanChest(player, economy);
+
+                return true;
+            case "updateconf":
+                UpdateConfig updateConfig = new UpdateConfig(this, this.languageManager);
+                if (player.hasPermission("clans.admin")) {
+                    updateConfig.fixClansConfig(player);
+                } else {
+                    player.sendMessage(ChatColor.RED + "" + ChatColor.BOLD + this.getConfig().getString("Plugin_Message_Indicator", "| ") + ChatColor.RED + languageManager.get("clans.info.no-perm"));
+                }
 
         }
 
@@ -469,19 +563,63 @@ public final class Clans extends JavaPlugin implements Listener {
 
     @Override
     public List<String> onTabComplete(CommandSender sender, Command cmd, String alias, String[] args) {
-        if (cmd.getName().equalsIgnoreCase("clan")) {
-            if (args.length == 1) {
-                List<String> suggestions = new ArrayList<>();
-                String input = args[0].toLowerCase();
+        File clansFile = new File(this.getDataFolder(), "clans.yml");
+        FileConfiguration config = YamlConfiguration.loadConfiguration(clansFile);
 
-                List<String> subCommands = Arrays.asList("setbanner", "getbanner", "togglejoin","online", "updater", "chat", "top", "create", "invite", "accept", "deny", "info", "leave", "promote", "demote", "kick", "transfer", "join", "raccept", "rdeny", "sethome", "home", "requests", "reload", "upgrade", "help", "pinfo", "deposit", "withdraw", "pvp", "balance", "delete", "change");
+        if (cmd.getName().equalsIgnoreCase("clan")) {
+
+            Player player = (Player) sender;
+
+            List<String> suggestions = new ArrayList<>();
+            List<String> subCommands = Arrays.asList("updateconf", "upgradestorage","storage", "chest", "unally", "unenemy", "ally" ,"war", "enemy" ,"setbanner", "getbanner", "togglejoin","online", "updater", "chat", "top", "create", "invite", "accept", "deny", "info", "leave", "promote", "demote", "kick", "transfer", "join", "raccept", "rdeny", "sethome", "home", "requests", "reload", "upgrade", "help", "pinfo", "deposit", "withdraw", "pvp", "balance", "delete", "change");
+
+
+            if (args.length == 1) {
+                String input = args[0].toLowerCase();
                 for (String subCommand : subCommands) {
                     if (subCommand.startsWith(input)) {
                         suggestions.add(subCommand);
                     }
                 }
                 return suggestions;
+            }else if (args.length == 2) {
+                if (args[0].equalsIgnoreCase("war") || args[0].equalsIgnoreCase("ally") || args[0].equalsIgnoreCase("join")  ) {
+                    if (config.contains("clans")) {
+                        Set<String> clanNames = config.getConfigurationSection("clans").getKeys(false);
+                        for (String clan : clanNames) {
+                            if (clan.toLowerCase().startsWith(args[1].toLowerCase())) {
+                                suggestions.add(clan);
+                            }
+                        }
+                        return suggestions;
+                    }
+                }
+                if (args[0].equalsIgnoreCase("unenemy")) {
+                    String ClanName = getClanName(player);
+                    List<String> ClanEnemies = config.getStringList("clans." + ClanName  + ".enemies");
+
+                    for (String clan : ClanEnemies) {
+                        if (clan.toLowerCase().startsWith(args[1].toLowerCase())) {
+                            suggestions.add(clan);
+                        }
+                    }
+                    return suggestions;
+
+                }
+                if (args[0].equalsIgnoreCase("unally")) {
+                    String ClanName = getClanName(player);
+                    List<String> ClanAllies = config.getStringList("clans." + ClanName  + ".allies");
+
+                    for (String clan : ClanAllies) {
+                        if (clan.toLowerCase().startsWith(args[1].toLowerCase())) {
+                            suggestions.add(clan);
+                        }
+                    }
+                    return suggestions;
+
+                }
             }
+
         }
         return null;
     }
@@ -498,14 +636,37 @@ public final class Clans extends JavaPlugin implements Listener {
         String victimClan = getClanName(victim);
         String attackerClan = getClanName(attacker);
 
-        if (victimClan == null || !victimClan.equals(attackerClan)) return;
+        if (victimClan == null || attackerClan == null) return;
 
         File clansFile = new File(this.getDataFolder(), "clans.yml");
         FileConfiguration clansConfig = YamlConfiguration.loadConfiguration(clansFile);
 
-        boolean pvpEnabled = clansConfig.getBoolean("clans." + victimClan + ".pvp");
+        boolean cancelAttack = false;
 
-        if (!pvpEnabled) {
+        // Same clan
+        if (victimClan.equals(attackerClan)) {
+            cancelAttack = !clansConfig.getBoolean("clans." + victimClan + ".pvp", true);
+        }
+
+        // Allied clans (MUST be mutual)
+        else {
+            List<String> victimAllies = clansConfig.getStringList("clans." + victimClan + ".allies");
+            List<String> attackerAllies = clansConfig.getStringList("clans." + attackerClan + ".allies");
+
+            boolean mutuallyAllied = victimAllies.contains(attackerClan) && attackerAllies.contains(victimClan);
+
+            if (mutuallyAllied) {
+                boolean victimPvp = clansConfig.getBoolean("clans." + victimClan + ".pvp", true);
+                boolean attackerPvp = clansConfig.getBoolean("clans." + attackerClan + ".pvp", true);
+
+                // block attack if either clan disables pvp
+                if (!victimPvp || !attackerPvp) {
+                    cancelAttack = true;
+                }
+            }
+        }
+
+        if (cancelAttack) {
             event.setCancelled(true);
             attacker.sendMessage(ChatColor.RED + languageManager.get("pvp.attacker-msg"));
 
@@ -514,6 +675,64 @@ public final class Clans extends JavaPlugin implements Listener {
             victim.sendMessage(ChatColor.RED + languageManager.get("pvp.victim-msg", placeholders));
         }
     }
+
+
+    @EventHandler
+    public void onChestClose(InventoryCloseEvent event) {
+        if (!(event.getPlayer() instanceof Player)) return;
+        Player player = (Player) event.getPlayer();
+
+        ClanChest clanChest = new ClanChest(this, this.languageManager);
+        String clanName = clanChest.getClanName(player);
+
+        if (clanName == null) return;
+
+        File clansFile = new File(this.getDataFolder(), "clans.yml");
+        FileConfiguration clansConfig = YamlConfiguration.loadConfiguration(clansFile);
+
+        String ClansPrefix = clansConfig.getString("clans." + clanName + ".prefix", clanName);
+        String formattedClanPrefix = formatClanPrefix(ClansPrefix);
+
+        String expectedTitle = formattedClanPrefix + "'s" + ChatColor.BLACK + " Clan Chest";
+
+        if (ChatColor.stripColor(event.getView().getTitle())
+                .equals(ChatColor.stripColor(expectedTitle))) {
+            clanChest.saveInventory(clanName, event.getInventory());
+        }
+    }
+
+
+
+    @EventHandler
+    public void onPlayerKills(PlayerDeathEvent event) {
+        Player victim = event.getEntity();
+        Player killer = victim.getKiller();
+
+        String victimsClan = getClanName(victim);
+        String killersClan = killer != null ? getClanName(killer) : null;
+
+        File clansFile = new File(this.getDataFolder(), "clans.yml");
+        FileConfiguration config = YamlConfiguration.loadConfiguration(clansFile);
+
+        // Victim's clan: add death
+        if (victimsClan != null) {
+            int currentDeaths = config.getInt("clans." + victimsClan + ".deaths", 0);
+            config.set("clans." + victimsClan + ".deaths", currentDeaths + 1);
+        }
+
+        // Killer's clan: add kill
+        if (killer != null && !killer.equals(victim) && killersClan != null) {
+            int currentKills = config.getInt("clans." + killersClan + ".kills", 0);
+            config.set("clans." + killersClan + ".kills", currentKills + 1);
+        }
+
+        try {
+            config.save(clansFile);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
 
     private String getClanName(Player player) {
         File clansFile = new File(this.getDataFolder(), "clans.yml");
@@ -538,32 +757,35 @@ public final class Clans extends JavaPlugin implements Listener {
         SearchPlayer searchPlayer = new SearchPlayer(this);
 
         if (searchPlayer.isPlayerInClan(player)) {
-            player.sendMessage(ChatColor.RED + "" +ChatColor.BOLD + "| " + ChatColor.RED + languageManager.get("clan.error.already-in-clan"));
+            player.sendMessage(ChatColor.RED + "" +ChatColor.BOLD + this.getConfig().getString("Plugin_Message_Indicator", "| ") + ChatColor.RED + languageManager.get("clan.error.already-in-clan"));
             return;
         }
 
         if (economy.getBalance(player) < requiredBalance) {
             double amount = this.getConfig().getDouble("Amount", 50000.0);
-
             Map<String, String> placeholders = new HashMap<>();
             placeholders.put("amount", String.valueOf(amount));
 
-            player.sendMessage(ChatColor.RED +""+ ChatColor.BOLD + "| " + ChatColor.RED + languageManager.get("clan.error.low-amount", placeholders));
+            player.sendMessage(ChatColor.RED +""+ ChatColor.BOLD + this.getConfig().getString("Plugin_Message_Indicator", "| ") + ChatColor.RED + languageManager.get("clan.error.low-amount", placeholders));
             return;
         }
 
         File clansFile = new File(getDataFolder(), "clans.yml");
         FileConfiguration clansConfig = YamlConfiguration.loadConfiguration(clansFile);
 
-        String cleanedClanName = clanName.replaceAll("&[a-zA-Z0-9]", "").toLowerCase();
+
+        File clansChestFile = new File(getDataFolder(), "clans_chest.yml");
+        FileConfiguration clansChestConfig = YamlConfiguration.loadConfiguration(clansChestFile);
+
+        String cleanedClanName = clanName.replaceAll("&[a-zA-Z0-9]", "").replaceAll("&#[a-fA-F0-9]{6}", "").toLowerCase();
 
         Set<String> existingClanNames = clansConfig.getConfigurationSection("clans").getKeys(false);
 
         for (String existingClan : existingClanNames) {
-            String cleanedExistingClanName = existingClan.replaceAll("&[a-zA-Z0-9]", "").toLowerCase();
+            String cleanedExistingClanName = existingClan.replaceAll("&[a-zA-Z0-9]", "").replaceAll("&#[a-fA-F0-9]{6}", "").toLowerCase();
 
             if (cleanedClanName.equals(cleanedExistingClanName)) {
-                player.sendMessage(ChatColor.RED + "" + ChatColor.BOLD + "| " + ChatColor.RED + languageManager.get("clan.error.name-taken"));
+                player.sendMessage(ChatColor.RED + "" + ChatColor.BOLD + this.getConfig().getString("Plugin_Message_Indicator", "| ") + ChatColor.RED + languageManager.get("clan.error.name-taken"));
                 return;
             }
         }
@@ -575,13 +797,13 @@ public final class Clans extends JavaPlugin implements Listener {
             String cleanedExistingClanName = BannedPrefix.toLowerCase();
 
             if (cleanedClanName.equals(cleanedExistingClanName)) {
-                player.sendMessage(ChatColor.RED + "" + ChatColor.BOLD + "| " + ChatColor.RED + languageManager.get("clan.error.banned-prefix"));
+                player.sendMessage(ChatColor.RED + "" + ChatColor.BOLD + this.getConfig().getString("Plugin_Message_Indicator", "| ") + ChatColor.RED + languageManager.get("clan.error.banned-prefix"));
                 return;
             }
         }
 
         if(cleanedClanName.contains(" ")){
-            player.sendMessage(ChatColor.RED + "" + ChatColor.BOLD + "| " + ChatColor.RED + languageManager.get("clan.error.no-space"));
+            player.sendMessage(ChatColor.RED + "" + ChatColor.BOLD + this.getConfig().getString("Plugin_Message_Indicator", "| ") + ChatColor.RED + languageManager.get("clan.error.no-space"));
             return;
         }
 
@@ -597,6 +819,12 @@ public final class Clans extends JavaPlugin implements Listener {
         clansConfig.set("clans." + cleanedClanName + ".balance", this.getConfig().getInt("initial_balance",25000));
         clansConfig.set("clans." + cleanedClanName + ".max_members", this.getConfig().getInt("max_members",50));
         clansConfig.set("clans." + cleanedClanName + ".prefix_change", this.getConfig().getInt("prefix_change",1));
+        clansConfig.set("clans." + cleanedClanName + ".enemies", new ArrayList<>());
+        clansConfig.set("clans." + cleanedClanName + ".allies", new ArrayList<>());
+        clansConfig.set("clans." + cleanedClanName + ".kills", player.getStatistic(Statistic.PLAYER_KILLS));
+        clansConfig.set("clans." + cleanedClanName + ".deaths", player.getStatistic(Statistic.DEATHS));
+        clansConfig.set("clans." + cleanedClanName + ".chest_size", 9);
+        clansChestConfig.set("chest." + cleanedClanName, new ArrayList<>());
 
 
 // May add in the future :p
@@ -609,15 +837,34 @@ public final class Clans extends JavaPlugin implements Listener {
             player.sendMessage(languageManager.get("clan.error.save-clan"));
             return;
         }
-        String TranslatedClanName = ChatColor.translateAlternateColorCodes('&', clanName);
+        String TranslatedClanName = formatClanPrefix(clanName);
 
         Map<String, String> placeholders = new HashMap<>();
         placeholders.put("clan_name", TranslatedClanName);
 
         String message = languageManager.get("clan.success.created", placeholders);
         message = message.replace(TranslatedClanName, TranslatedClanName + ChatColor.GREEN);
-        player.sendMessage(ChatColor.GREEN + "" + ChatColor.BOLD + "| " + ChatColor.GREEN + message);
+        player.sendMessage(ChatColor.GREEN + "" + ChatColor.BOLD + this.getConfig().getString("Plugin_Message_Indicator", "| ") + ChatColor.GREEN + message);
     }
+
+
+    private static String formatClanPrefix(String prefix) {
+        if (prefix == null) return "";
+        java.util.regex.Pattern hexPattern = java.util.regex.Pattern.compile("&#([A-Fa-f0-9]{6})");
+        java.util.regex.Matcher matcher = hexPattern.matcher(prefix);
+        StringBuffer buffer = new StringBuffer();
+
+        while (matcher.find()) {
+            String hexCode = matcher.group(1);
+            matcher.appendReplacement(buffer, net.md_5.bungee.api.ChatColor.of("#" + hexCode).toString());
+        }
+        matcher.appendTail(buffer);
+
+        // Step 2: Convert legacy & codes
+        return net.md_5.bungee.api.ChatColor.translateAlternateColorCodes('&', buffer.toString());
+    }
+
+
 
 // May add in the future :p
 //    public static String generateClanId(int length) {

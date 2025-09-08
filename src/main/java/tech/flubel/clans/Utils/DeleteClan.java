@@ -28,7 +28,7 @@ public class DeleteClan {
 
             if (clansConfig.contains("clans." + clanName)) {
                 String prefix = clansConfig.getString("clans." + clanName + ".prefix");
-                String TranslatedClanName = ChatColor.translateAlternateColorCodes('&', prefix);
+                String TranslatedClanName = formatClanPrefix(prefix);
 
                 clansConfig.set("clans." + clanName, null);
                 try {
@@ -39,9 +39,9 @@ public class DeleteClan {
                     String message = languageManager.get("delete.success", placeholders);
                     message = message.replace(TranslatedClanName, TranslatedClanName + ChatColor.GREEN);
 
-                    player.sendMessage(ChatColor.GREEN + "" + ChatColor.BOLD + "| " + ChatColor.GREEN + message);
+                    player.sendMessage(ChatColor.GREEN + "" + ChatColor.BOLD + plugin.getConfig().getString("Plugin_Message_Indicator", "| ") + ChatColor.GREEN + message);
                 } catch (IOException e) {
-                    player.sendMessage(ChatColor.RED + "" + ChatColor.BOLD + "| " + ChatColor.RED + languageManager.get("delete.error"));
+                    player.sendMessage(ChatColor.RED + "" + ChatColor.BOLD + plugin.getConfig().getString("Plugin_Message_Indicator", "| ") + ChatColor.RED + languageManager.get("delete.error"));
                     plugin.getLogger().info(e.getMessage());
                 }
             } else {
@@ -49,13 +49,30 @@ public class DeleteClan {
                 Map<String, String> placeholders = new HashMap<>();
                 placeholders.put("clan_name", clanName);
 
-                player.sendMessage(ChatColor.RED + "" + ChatColor.BOLD + "| " + ChatColor.RED + languageManager.get("delete.no-clan", placeholders));
+                player.sendMessage(ChatColor.RED + "" + ChatColor.BOLD + plugin.getConfig().getString("Plugin_Message_Indicator", "| ") + ChatColor.RED + languageManager.get("delete.no-clan", placeholders));
             }
         } else {
-            player.sendMessage(ChatColor.RED + "" + ChatColor.BOLD + "| " + ChatColor.RED + languageManager.get("delete.no-perm"));
+            player.sendMessage(ChatColor.RED + "" + ChatColor.BOLD + plugin.getConfig().getString("Plugin_Message_Indicator", "| ") + ChatColor.RED + languageManager.get("delete.no-perm"));
         }
     }
 
+    private static String formatClanPrefix(String prefix) {
+        if (prefix == null) return "";
 
+        // Step 1: Convert hex colors (&#RRGGBB) into ChatColor.of
+        // Regex finds '&#' followed by 6 hex digits
+        java.util.regex.Pattern hexPattern = java.util.regex.Pattern.compile("&#([A-Fa-f0-9]{6})");
+        java.util.regex.Matcher matcher = hexPattern.matcher(prefix);
+        StringBuffer buffer = new StringBuffer();
+
+        while (matcher.find()) {
+            String hexCode = matcher.group(1);
+            matcher.appendReplacement(buffer, net.md_5.bungee.api.ChatColor.of("#" + hexCode).toString());
+        }
+        matcher.appendTail(buffer);
+
+        // Step 2: Convert legacy & codes
+        return net.md_5.bungee.api.ChatColor.translateAlternateColorCodes('&', buffer.toString());
+    }
 
 }

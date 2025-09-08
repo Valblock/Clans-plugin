@@ -30,11 +30,11 @@ public class Demote {
 
         // Check if the clan exists
         if (!config.contains("clans." + clanName)) {
-            leader.sendMessage(ChatColor.RED + "" + ChatColor.BOLD + "| " + ChatColor.RED + languageManager.get("demote.no-exist"));
+            leader.sendMessage(ChatColor.RED + "" + ChatColor.BOLD + plugin.getConfig().getString("Plugin_Message_Indicator", "| ") + ChatColor.RED + languageManager.get("demote.no-exist"));
             return;
         }
         if(clanName == null) {
-            leader.sendMessage(ChatColor.RED + "" + ChatColor.BOLD + "| " + ChatColor.RED + languageManager.get("demote.no-clan"));
+            leader.sendMessage(ChatColor.RED + "" + ChatColor.BOLD + plugin.getConfig().getString("Plugin_Message_Indicator", "| ") + ChatColor.RED + languageManager.get("demote.no-clan"));
             return;
         }
 
@@ -45,7 +45,7 @@ public class Demote {
 
         // Check if the leader is demoting a co-leader
         if (!leader.getName().equals(leaderName)) {
-            leader.sendMessage(ChatColor.RED + "" + ChatColor.BOLD + "| " + ChatColor.RED + languageManager.get("demote.no-auth"));
+            leader.sendMessage(ChatColor.RED + "" + ChatColor.BOLD + plugin.getConfig().getString("Plugin_Message_Indicator", "| ") + ChatColor.RED + languageManager.get("demote.no-auth"));
             return;
         }
 
@@ -53,13 +53,13 @@ public class Demote {
         if (!coLeaders.contains(targetName)) {
             Map<String, String> placeholders = new HashMap<>();
             placeholders.put("player", targetName);
-            leader.sendMessage(ChatColor.RED + "" + ChatColor.BOLD + "| " + ChatColor.RED + languageManager.get("demote.no-dem", placeholders));
+            leader.sendMessage(ChatColor.RED + "" + ChatColor.BOLD + plugin.getConfig().getString("Plugin_Message_Indicator", "| ") + ChatColor.RED + languageManager.get("demote.no-dem", placeholders));
             return;
         }
 
         // Check if the player is the leader, since the leader cannot be demoted
         if (targetName.equals(leaderName)) {
-            leader.sendMessage(ChatColor.RED + "" + ChatColor.BOLD + "| " + ChatColor.RED + languageManager.get("demote.void"));
+            leader.sendMessage(ChatColor.RED + "" + ChatColor.BOLD + plugin.getConfig().getString("Plugin_Message_Indicator", "| ") + ChatColor.RED + languageManager.get("demote.void"));
             return;
         }
 
@@ -77,13 +77,13 @@ public class Demote {
             Map<String, String> placeholders = new HashMap<>();
             placeholders.put("player", targetName);
 
-            leader.sendMessage(ChatColor.GREEN + "" + ChatColor.BOLD + "| " + ChatColor.GREEN + languageManager.get("demote.success", placeholders));
+            leader.sendMessage(ChatColor.GREEN + "" + ChatColor.BOLD + plugin.getConfig().getString("Plugin_Message_Indicator", "| ") + ChatColor.GREEN + languageManager.get("demote.success", placeholders));
 
             Map<String, String> placeholders1 = new HashMap<>();
             placeholders1.put("leader", leader.getName());
-            demoted.sendMessage(ChatColor.RED + "" + ChatColor.BOLD + "| " + ChatColor.RED + languageManager.get("demote.success-demoted", placeholders1));
+            demoted.sendMessage(ChatColor.RED + "" + ChatColor.BOLD + plugin.getConfig().getString("Plugin_Message_Indicator", "| ") + ChatColor.RED + languageManager.get("demote.success-demoted", placeholders1));
         } catch (Exception e) {
-            leader.sendMessage(ChatColor.RED + "" + ChatColor.BOLD + "| " + ChatColor.RED + languageManager.get("demote.error"));
+            leader.sendMessage(ChatColor.RED + "" + ChatColor.BOLD + plugin.getConfig().getString("Plugin_Message_Indicator", "| ") + ChatColor.RED + languageManager.get("demote.error"));
             e.printStackTrace();
         }
     }

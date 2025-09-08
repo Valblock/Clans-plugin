@@ -33,7 +33,7 @@ public class UpgradeClan {
         String clanName = getClanName(player);
 
         if (clanName == null) {
-            player.sendMessage(ChatColor.RED +""+ ChatColor.BOLD + "| " + ChatColor.RED + languageManager.get("upgrade.no-clan"));
+            player.sendMessage(ChatColor.RED +""+ ChatColor.BOLD + plugin.getConfig().getString("Plugin_Message_Indicator", "| ") + ChatColor.RED + languageManager.get("upgrade.no-clan"));
             return;
         }
 
@@ -42,12 +42,12 @@ public class UpgradeClan {
 
         if (!clansConfig.getString("clans." + clanName + ".leader").equals(player.getName()) &&
                 !clansConfig.getStringList("clans." + clanName + ".co_leader").contains(player.getName())) {
-            player.sendMessage(ChatColor.RED +""+ ChatColor.BOLD + "| " + ChatColor.RED + languageManager.get("upgrade.no-auth"));
+            player.sendMessage(ChatColor.RED +""+ ChatColor.BOLD + plugin.getConfig().getString("Plugin_Message_Indicator", "| ") + ChatColor.RED + languageManager.get("upgrade.no-auth"));
             return;
         }
         int requiredBalance = plugin.getConfig().getInt("upgrade_cost", 10000);
         if (economy.getBalance(player) < requiredBalance) {
-            player.sendMessage(ChatColor.RED +""+ ChatColor.BOLD + "| " + ChatColor.RED + languageManager.get("upgrade.not-enough-balance"));
+            player.sendMessage(ChatColor.RED +""+ ChatColor.BOLD + plugin.getConfig().getString("Plugin_Message_Indicator", "| ") + ChatColor.RED + languageManager.get("upgrade.not-enough-balance"));
             return;
         }
         int slotsUp = plugin.getConfig().getInt("upgrade_slots", 1);
@@ -66,7 +66,7 @@ public class UpgradeClan {
                 Map<String, String> placeholders = new HashMap<>();
                 placeholders.put("upgrader_name", player.getName());
 
-                member.sendMessage(ChatColor.GOLD + "" + ChatColor.BOLD + "| " + ChatColor.GOLD + languageManager.get("upgrade.success", placeholders));
+                member.sendMessage(ChatColor.GOLD + "" + ChatColor.BOLD + plugin.getConfig().getString("Plugin_Message_Indicator", "| ") + ChatColor.GOLD + languageManager.get("upgrade.success", placeholders));
             }
         }
 

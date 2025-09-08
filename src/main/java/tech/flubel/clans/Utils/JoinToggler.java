@@ -28,7 +28,7 @@ public class JoinToggler {
         String clanName = getClanName(player);
 
         if (clanName == null) {
-            player.sendMessage(ChatColor.RED + "" + ChatColor.BOLD + "| " + ChatColor.RED + languageManager.get("join_toggle.no-clan"));
+            player.sendMessage(ChatColor.RED + "" + ChatColor.BOLD + plugin.getConfig().getString("Plugin_Message_Indicator", "| ") + ChatColor.RED + languageManager.get("join_toggle.no-clan"));
             return;
         }
 
@@ -37,7 +37,7 @@ public class JoinToggler {
 
 
         if (!clansConfig.getString("clans." + clanName + ".leader").equals(player.getName())) {
-            player.sendMessage(ChatColor.RED + "" + ChatColor.BOLD + "| " + ChatColor.RED + languageManager.get("join_toggle.no-auth"));
+            player.sendMessage(ChatColor.RED + "" + ChatColor.BOLD + plugin.getConfig().getString("Plugin_Message_Indicator", "| ") + ChatColor.RED + languageManager.get("join_toggle.no-auth"));
             return;
         }
         boolean currentState = clansConfig.getBoolean("clans." + clanName + ".joins", true);
@@ -47,7 +47,7 @@ public class JoinToggler {
             clansConfig.save(clansFile);
         } catch (Exception e) {
             e.printStackTrace();
-            player.sendMessage(ChatColor.RED + "" + ChatColor.BOLD + "| " + ChatColor.RED + languageManager.get("join_toggle.error"));
+            player.sendMessage(ChatColor.RED + "" + ChatColor.BOLD + plugin.getConfig().getString("Plugin_Message_Indicator", "| ") + ChatColor.RED + languageManager.get("join_toggle.error"));
             return;
         }
 
@@ -59,9 +59,9 @@ public class JoinToggler {
                 Map<String, String> placeholders = new HashMap<>();
                 placeholders.put("status", status);
                 if(status.equals("enabled")) {
-                    member.sendMessage(ChatColor.GREEN + "" + ChatColor.BOLD + "| " + ChatColor.GREEN + languageManager.get("join_toggle.success", placeholders));
+                    member.sendMessage(ChatColor.GREEN + "" + ChatColor.BOLD + plugin.getConfig().getString("Plugin_Message_Indicator", "| ") + ChatColor.GREEN + languageManager.get("join_toggle.success", placeholders));
                 } else {
-                    member.sendMessage(ChatColor.RED + "" + ChatColor.BOLD + "| " + ChatColor.RED + languageManager.get("join_toggle.success", placeholders));
+                    member.sendMessage(ChatColor.RED + "" + ChatColor.BOLD + plugin.getConfig().getString("Plugin_Message_Indicator", "| ") + ChatColor.RED + languageManager.get("join_toggle.success", placeholders));
                 }
             }
         }
