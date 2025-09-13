@@ -1,6 +1,6 @@
 clan:
   general: "Gemaakt bij Flubel door Fiend."
-  version: "Versie: 1.6.0"
+  version: "Versie: 1.6.1"
   error:
     already-in-clan: "Du kannst keinen neuen Clan erstellen, während du Mitglied oder Besitzer eines anderen Clans bist."
     low-amount: "Du benötigst %amount%, um einen Clan zu erstellen!"
@@ -31,6 +31,9 @@ clan:
     delerror: "Voer de naam van een clan in om te verwijderen."
     no-name: "Gebruik: /clan change <new_prefix>. Voorvoegsels kunnen gekleurd zijn."
     no-perm: "Entschuldigung! Du darfst diesen Befehl nicht benutzen."
+    feature-disabled: "Entschuldigung! Diese Funktion ist deaktiviert."
+    enabled: "aktiviert"
+    disabled: "deaktiviert"
   clan_help_descriptions:
     title: "| Clans Help"
     top: "Toon ranglijst van alle topclans."
@@ -254,6 +257,7 @@ clan_banner:
   error: "Clanbanner konnte nicht gespeichert werden."
   not-available: "Kein Clanbanner vorhanden."
   success-giver: "Du hast das Banner deines Clans erhalten!"
+  not-enough-balance: "Entschuldigung, du hast nicht genug Guthaben, um das Clanbanner zu erhalten. Du benötigst %amount%"
 enemies:
   no-clan: "Es gibt keinen solchen Clan."
   no-clan-self: "Du bist in keinem Clan."

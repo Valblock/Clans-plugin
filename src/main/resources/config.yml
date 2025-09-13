@@ -15,6 +15,21 @@ Amount: 50000
 max_members: 50
 
 # -------------------------------------------------------
+# The maximum length a clans prefix can have
+# This does not include the color codes.
+Prefix_Limit: 20
+
+# -------------------------------------------------------
+# Should the clan Banners be enabled?
+# true or false, (Defaults to true)
+Clan_Banners: true
+
+# -------------------------------------------------------
+# The Amount charged to a clan member if he wants the clan's banner
+# This command has no cooldown.
+Banner_Cost: 3750
+
+# -------------------------------------------------------
 # The maximum number of times a leader can change clans prefix.
 # before purchasing any upgrades.
 prefix_change: 1
@@ -45,11 +60,18 @@ initial_balance: 25000
 language: en
 
 # -------------------------------------------------------
+# Should the clan Chest be enabled?
+# true or false, (Defaults to true)
+Clan_Chest: true
+
+# -------------------------------------------------------
 #  The cost (in game currency) for each chest upgrade purchase by 9
 # Initial is 9 and can go upto 54
 chest_upgrade_cost: 30000
 
-
+# -------------------------------------------------------
+# The Prefix shown before any default plugins system message
+# to the player
 Plugin_Message_Indicator: "| "
 
 # -------------------------------------------------------

@@ -1,6 +1,6 @@
 clan:
   general: "由 Fiend 在 Flubel 制作。"
-  version: "版本：1.6.0"
+  version: "版本：1.6.1"
   error:
     already-in-clan: "您已是某个部落的成员/所有者，无法创建新部落。"
     low-amount: "您需要 %amount% 才能创建一个部落！"
@@ -31,6 +31,9 @@ clan:
     delerror: "请输入要删除的部落名称。"
     no-name: "用法：/clan change <new_prefix>。前缀可以使用颜色代码。"
     no-perm: "抱歉！你不能使用这个命令。"
+    feature-disabled: "抱歉！此功能已被禁用。"
+    enabled: "启用"
+    disabled: "禁用"
   clan_help_descriptions:
     title: "| 部落帮助"
     top: "列出所有顶级部落的排名。"
@@ -254,6 +257,7 @@ clan_banner:
   error: "保存公会旗帜失败。"
   not-available: "没有公会旗帜。"
   success-giver: "你收到了你公会的旗帜！"
+  not-enough-balance: "抱歉，你的余额不足以获取战旗，你还需要 %amount%"
 enemies:
   no-clan: "没有这样的公会。"
   no-clan-self: "你不在任何公会中。"

@@ -1,5 +1,6 @@
 package tech.flubel.clans.Utils;
 
+import net.milkbowl.vault.economy.Economy;
 import org.bukkit.ChatColor;
 import org.bukkit.DyeColor;
 import org.bukkit.block.banner.Pattern;
@@ -23,10 +24,12 @@ import java.util.Map;
 public class SetBanner {
     private final Clans plugin;
     private final LanguageManager languageManager;
+    private final Economy economy;
 
-    public SetBanner(JavaPlugin plugin, LanguageManager languageManager) {
+    public SetBanner(JavaPlugin plugin, LanguageManager languageManager, Economy economy) {
         this.plugin = (Clans) plugin;
         this.languageManager = languageManager;
+        this.economy = economy;
     }
 
 
@@ -97,6 +100,19 @@ public class SetBanner {
             player.sendMessage(ChatColor.RED + "" + ChatColor.BOLD + plugin.getConfig().getString("Plugin_Message_Indicator", "| ") + ChatColor.RED + languageManager.get("clan_banner.not-available"));
             return;
         }
+
+        if(economy.getBalance(player) < plugin.getConfig().getInt("Banner_Cost", 3750)){
+
+            Map<String, String> placeholders = new HashMap<>();
+            placeholders.put("amount", String.valueOf(plugin.getConfig().getInt("Banner_Cost", 3750)));
+
+            player.sendMessage(ChatColor.RED + "" + ChatColor.BOLD + plugin.getConfig().getString("Plugin_Message_Indicator", "| ") + ChatColor.RED + languageManager.get("clan_banner.not-enough-balance", placeholders));
+            return;
+        }
+
+        economy.withdrawPlayer(player, plugin.getConfig().getInt("Banner_Cost", 3750));
+
+
 
         // Get base color
         String baseName = clansConfig.getString("clans." + clanName + ".banner.base", "WHITE");

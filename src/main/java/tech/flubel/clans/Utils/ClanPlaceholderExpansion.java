@@ -54,6 +54,9 @@ public class ClanPlaceholderExpansion extends PlaceholderExpansion {
         if (identifier.equals("name_cm")) {
             return getPlayerClanChatManager(player);
         }
+        if (identifier.equals("name_plain")) {
+            return getPlainClanName(player);
+        }
         if (identifier.equals("badge")) {
             return getPlayerClanBadge(player);
         }
@@ -71,7 +74,7 @@ public class ClanPlaceholderExpansion extends PlaceholderExpansion {
             if (clansConfig.getString("clans." + clanName + ".leader").equals(player.getName()) ||
                     clansConfig.getStringList("clans." + clanName + ".co_leader").contains(player.getName()) ||
                     clansConfig.getStringList("clans." + clanName + ".members").contains(player.getName())) {
-                return formatClanPrefix(clansConfig.getString("clans." + clanName + ".prefix"));
+                return formatClanPrefix(clansConfig.getString("clans." + clanName + ".prefix") + " ");
             }
         }
         return "";
@@ -88,12 +91,34 @@ public class ClanPlaceholderExpansion extends PlaceholderExpansion {
 
                 String prefix = clansConfig.getString("clans." + clanName + ".prefix");
 
-                // Remove & only if followed by #
                 if (prefix != null) {
                     prefix = prefix.replaceAll("&(?=#)", "");
+
+                    if (!prefix.isEmpty()) {
+                        return prefix + " ";
+                    }
                 }
 
-                return prefix;
+                return "";
+            }
+        }
+        return "";
+    }
+
+
+    private String getPlainClanName(Player player) {
+        File clansFile = new File(plugin.getDataFolder(), "clans.yml");
+        FileConfiguration clansConfig = YamlConfiguration.loadConfiguration(clansFile);
+
+        for (String clanName : clansConfig.getConfigurationSection("clans").getKeys(false)) {
+            if (clansConfig.getString("clans." + clanName + ".leader").equals(player.getName()) ||
+                    clansConfig.getStringList("clans." + clanName + ".co_leader").contains(player.getName()) ||
+                    clansConfig.getStringList("clans." + clanName + ".members").contains(player.getName())) {
+
+                String prefix = clansConfig.getString("clans." + clanName + ".prefix");
+                String cleanedClanName = prefix.replaceAll("&[a-zA-Z0-9]", "").replaceAll("&#[a-fA-F0-9]{6}", "");
+
+                return cleanedClanName;
             }
         }
         return "";

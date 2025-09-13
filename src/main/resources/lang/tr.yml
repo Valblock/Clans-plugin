@@ -1,6 +1,6 @@
 clan:
   general: "Flubel'de Fiend tarafından yapıldı."
-  version: "Sürüm: 1.6.0"
+  version: "Sürüm: 1.6.1"
   error:
     already-in-clan: "Zaten bir klana üyeyseniz veya lider iseniz, yeni bir klan oluşturamazsınız."
     low-amount: "Bir klan oluşturmak için %amount% gerekli!"
@@ -31,6 +31,9 @@ clan:
     delerror: "Silmek için bir Klan ismi girin."
     no-name: "Kullanım: /clan change <new_prefix>. Ön ekler renklendirilebilir."
     no-perm: "Üzgünüm! Bu komutu kullanamazsın."
+    feature-disabled: "Üzgünüm! Bu özellik devre dışı bırakıldı."
+    enabled: "etkinleştirildi"
+    disabled: "devre dışı"
   clan_help_descriptions:
     title: "| Klan Yardımı"
     top: "Tüm en iyi klanların sıralamasını listele."
@@ -254,6 +257,7 @@ clan_banner:
   error: "Klan bayrağı kaydedilemedi."
   not-available: "Klan bayrağı mevcut değil."
   success-giver: "Klanının bayrağını aldın!"
+  not-enough-balance: "Üzgünüm, klan bayrağını almak için yeterli bakiyeniz yok, %amount% daha gerekiyor"
 enemies:
   no-clan: "Böyle bir klan yok."
   no-clan-self: "Herhangi bir klana üye değilsin."

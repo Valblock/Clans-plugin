@@ -1,6 +1,6 @@
 clan:
   general: "Made at Flubel by Fiend."
-  version: "Version: 1.6.0"
+  version: "Version: 1.6.1"
   error:
     already-in-clan: "You cannot create a new clan while you are a member/owner of another clan."
     low-amount: "You need %amount% to create a clan!"
@@ -31,6 +31,9 @@ clan:
     delerror: "Enter a Clan's name to delete."
     no-name: "Usage: /clan change <new_prefix>. Prefixes can be color coded."
     no-perm: "Sorry! You cant use this command."
+    feature-disabled: "Sorry! This feature is disabled."
+    enabled: "enabled"
+    disabled: "disabled"
   clan_help_descriptions:
     title: "| Clans Help"
     top: " - List ranking for all top clans."
@@ -254,6 +257,7 @@ clan_banner:
   error: "Failed to save clan banner."
   not-available: "No Clan Banner Exists."
   success-giver: "You received your clan's banner!"
+  not-enough-balance: "Sorry you don't have enough balance to get clan banner, you need %amount%"
 enemies:
   no-clan: "There is no such clan."
   no-clan-self: "You are not in any clan."

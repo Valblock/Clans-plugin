@@ -23,18 +23,18 @@ The Clans Plugin is the ultimate tool for fostering teamwork and competition on 
    - Set a home location for your clan.
    - Teleport to the clan home anytime.
 6. **Clan Banner**: Set a clan Banner to assert Land Dominance.
-6. **Pvp Management**: Leaders can now enable or disable pvp amongst clan members (own and allied clans).
-7. **Clan Enemies/Allies**: Clans can now declare Enemies and Alliance.
-8. **Clan Upgrades**: Expand your clan's player slots with upgrades.
-9. **Join Requests**:
+7. **Pvp Management**: Leaders can now enable or disable pvp amongst clan members (own and allied clans).
+8. **Clan Enemies/Allies**: Clans can now declare Enemies and Alliance.
+9. **Clan Upgrades**: Expand your clan's player slots with upgrades.
+10. **Join Requests**:
    - Send requests to join clans.
    - Accept or deny join requests as a leader.
    - Toggle Clan Join status.
-10. **Economy Integration**: Requires Vault to manage clan creation costs and upgrades.
-11. **PlaceholderAPI Support**: Display clan-related placeholders anywhere on your server.
-12. **Highly Configurable**: Customize settings like clan creation costs, max members, and more.
-13. **Multi-Language Support**: Plugin supports up to 6 languages that are en, fr, dt, ru, tr, cn.
-14. **Hex Colored Clan Names**: Clan names now support custom 6-digit hex color codes (e.g. #178ad6).
+11. **Economy Integration**: Requires Vault to manage clan creation costs and upgrades.
+12. **PlaceholderAPI Support**: Display clan-related placeholders anywhere on your server.
+13. **Highly Configurable**: Customize settings like clan creation costs, max members, and more.
+14. **Multi-Language Support**: Plugin supports up to 6 languages that are en, fr, dt, ru, tr, cn.
+15. **Hex Colored Clan Names**: Clan names now support custom 6-digit hex color codes (e.g. #178ad6).
 
 ## Placeholders
 These placeholders are available when using [PlaceholderAPI](https://www.spigotmc.org/resources/placeholderapi.6245/):
@@ -55,6 +55,9 @@ These placeholders are available when using [PlaceholderAPI](https://www.spigotm
    - [Hangar](https://hangar.papermc.io/MrFiend/Clans)
 2. Place the `.jar` file into your server’s `plugins/` folder.
 3. Restart your server.
+
+## Notice
+The plugin functions fully without **[Fcore](https://modrinth.com/plugin/fcore)**, with one exception: **Offline Player Kicking** requires Fcore, as it is responsible for tracking offline player stats.
 
 ## Documentation
 Full setup guides and advanced usage can be found in the [Wiki](../../wiki).

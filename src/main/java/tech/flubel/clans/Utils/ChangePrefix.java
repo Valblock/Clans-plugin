@@ -46,6 +46,12 @@ public class ChangePrefix {
 
         String cleanedClanName = NewPrefix.replaceAll("&[a-zA-Z0-9]", "").replaceAll("&#[a-fA-F0-9]{6}", "").toLowerCase();
 
+
+        if(cleanedClanName.length() > plugin.getConfig().getInt("Prefix_Limit", 20)){
+            player.sendMessage(ChatColor.RED + "" + ChatColor.BOLD + plugin.getConfig().getString("Plugin_Message_Indicator", "| ") + ChatColor.WHITE + languageManager.get("clan.info.name-limit"));
+            return;
+        }
+
         Set<String> existingClanNames = config.getConfigurationSection("clans").getKeys(false);
 
         for (String existingClan : existingClanNames) {

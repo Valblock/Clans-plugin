@@ -1,5 +1,5 @@
 name: Clans
-version: '1.6.0'
+version: '1.6.1'
 main: tech.flubel.clans.Clans
 api-version: 1.13
 authors: [ MrFiend179 ]

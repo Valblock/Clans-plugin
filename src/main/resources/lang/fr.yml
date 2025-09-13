@@ -1,6 +1,6 @@
 clan:
   general: "Créé chez Flubel par Fiend."
-  version: "Version : 1.6.0"
+  version: "Version : 1.6.1"
   error:
     already-in-clan: "Vous ne pouvez pas créer un nouveau clan tant que vous êtes membre/propriétaire d'un autre clan."
     low-amount: "Vous avez besoin de %amount% pour créer un clan !"
@@ -31,6 +31,9 @@ clan:
     delerror: "Entrez le nom d'un clan à supprimer."
     no-name: "Utilisation : /clan change <new_prefix>. Les préfixes peuvent être colorés."
     no-perm: "Désolé ! Vous ne pouvez pas utiliser cette commande."
+    feature-disabled: "Désolé ! Cette fonctionnalité est désactivée."
+    enabled: "activé"
+    disabled: "désactivé"
   clan_help_descriptions:
     title: "| Aide des Clans"
     top: "Lister les classements de tous les meilleurs clans."
@@ -254,6 +257,7 @@ clan_banner:
   error: "Échec de l'enregistrement de la bannière du clan."
   not-available: "Aucune bannière de clan existante."
   success-giver: "Vous avez reçu la bannière de votre clan !"
+  not-enough-balance: "Désolé, vous n’avez pas assez de solde pour obtenir la bannière de clan, il vous manque %amount%"
 enemies:
   no-clan: "Il n’y a pas de tel clan."
   no-clan-self: "Tu n’es dans aucun clan."

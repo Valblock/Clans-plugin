@@ -49,19 +49,21 @@ public class ClanPvPToggle {
             return;
         }
 
-        String status = newState ? "enabled" : "disabled";
+        String statusKey = newState ? "enabled" : "disabled";
+        String status = languageManager.get(statusKey);
 
         for (String memberName : getClanMembers(clanName)) {
             Player member = plugin.getServer().getPlayer(memberName);
             if (member != null && member.isOnline()) {
                 Map<String, String> placeholders = new HashMap<>();
                 placeholders.put("status", status);
-                    if(status.equals("enabled")) {
-                        member.sendMessage(ChatColor.GREEN + "" + ChatColor.BOLD + plugin.getConfig().getString("Plugin_Message_Indicator", "| ") + ChatColor.GREEN + languageManager.get("clan_pvp.success", placeholders));
-                    } else {
-                        member.sendMessage(ChatColor.RED + "" + ChatColor.BOLD + plugin.getConfig().getString("Plugin_Message_Indicator", "| ") + ChatColor.RED + languageManager.get("clan_pvp.success", placeholders));
-                    }
-                }
+
+                ChatColor color = newState ? ChatColor.GREEN : ChatColor.RED;
+
+                member.sendMessage(color + "" + ChatColor.BOLD
+                        + plugin.getConfig().getString("Plugin_Message_Indicator", "| ")
+                        + color + languageManager.get("clan_pvp.success", placeholders));
+            }
         }
 
     }

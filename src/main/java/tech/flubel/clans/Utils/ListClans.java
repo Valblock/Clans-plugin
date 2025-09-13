@@ -76,7 +76,7 @@ public class ListClans {
 
             String kdrString = String.format("%.1f", ClansKDR);
 
-            player.sendMessage(ChatColor.BOLD + "" + (i + 1) + ") " + formattedClanName + ChatColor.YELLOW + " | " + languageManager.get("list_clans.leader_title") + ": " + leader + " ("
+            player.sendMessage(ChatColor.BOLD + "" + (i + 1) + ") " + ChatColor.YELLOW + formattedClanName + ChatColor.YELLOW + " | " + languageManager.get("list_clans.leader_title") + ": " + leader + " ("
                     + totalMembers + "/" + maxmembers + ") | $" + clanBalance + " | " + kdrString + " KDR");
         }
     }

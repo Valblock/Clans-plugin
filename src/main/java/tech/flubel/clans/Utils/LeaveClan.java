@@ -34,40 +34,39 @@ public class LeaveClan {
             player.sendMessage(ChatColor.RED + "" + ChatColor.BOLD + plugin.getConfig().getString("Plugin_Message_Indicator", "| ") + ChatColor.RED + languageManager.get("leave.no-clan"));
         }
 
-        for (String clanName : config.getConfigurationSection("clans").getKeys(false)) {
-            List<String> members = config.getStringList("clans." + clanName + ".members");
-            List<String> coleaders = config.getStringList("clans." + clanName + ".co_leader");
-            String leader = config.getString("clans." + clanName + ".leader");
+        String leader = config.getString("clans." + ClanName + ".leader");
 
+        if (player.getName().equals(leader)) {
+            player.sendMessage(ChatColor.RED + "" + ChatColor.BOLD + plugin.getConfig().getString("Plugin_Message_Indicator", "| ") + ChatColor.RED + languageManager.get("leave.leader-warn"));
+            return;
+        }
 
-                if (player.getName().equals(leader)) {
-                    player.sendMessage(ChatColor.RED + "" + ChatColor.BOLD + plugin.getConfig().getString("Plugin_Message_Indicator", "| ") + ChatColor.RED + languageManager.get("leave.leader-warn"));
-                    return;
-                }
+            List<String> members = config.getStringList("clans." + ClanName + ".members");
+            List<String> coleaders = config.getStringList("clans." + ClanName + ".co_leader");
 
                 if (members.contains(player.getName())) {
                     members.remove(player.getName());
-                    config.set("clans." + clanName + ".members", members);
+                    config.set("clans." + ClanName + ".members", members);
                 }
 
                 // Remove from co-leaders
                 if (coleaders.contains(player.getName())) {
                     coleaders.remove(player.getName());
-                    config.set("clans." + clanName + ".co_leader", coleaders);
+                    config.set("clans." + ClanName + ".co_leader", coleaders);
                 }
 
 
             int playerKills = player.getStatistic(Statistic.PLAYER_KILLS);
             int playerDeaths = player.getStatistic(Statistic.DEATHS);
 
-            int clanKills = config.getInt("clans." + clanName + ".kills", 0);
-            int clanDeaths = config.getInt("clans." + clanName + ".deaths", 0);
+            int clanKills = config.getInt("clans." + ClanName + ".kills", 0);
+            int clanDeaths = config.getInt("clans." + ClanName + ".deaths", 0);
 
             clanKills -= playerKills;
             clanDeaths -= playerDeaths;
 
-            config.set("clans." + clanName + ".kills", clanKills);
-            config.set("clans." + clanName + ".deaths", clanDeaths);
+            config.set("clans." + ClanName + ".kills", clanKills);
+            config.set("clans." + ClanName + ".deaths", clanDeaths);
 
 
                 try {
@@ -77,9 +76,6 @@ public class LeaveClan {
                     player.sendMessage(ChatColor.RED + "" + ChatColor.BOLD + plugin.getConfig().getString("Plugin_Message_Indicator", "| ") + ChatColor.RED + languageManager.get("leave.error"));
                     e.printStackTrace();
                 }
-                return;
-
-        }
 
 //        player.sendMessage(ChatColor.RED + "You are not in a clan.");
 
