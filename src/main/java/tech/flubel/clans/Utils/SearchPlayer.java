@@ -20,13 +20,20 @@ public class SearchPlayer {
         File clansFile = new File(plugin.getDataFolder(), "clans.yml");
         FileConfiguration clansConfig = YamlConfiguration.loadConfiguration(clansFile);
 
+        // co_leader est une LISTE. getString rendait donc null, et le
+        // .equals qui suivait levait une NullPointerException des qu'un seul
+        // clan existait - le bug ne se voyait pas tant que clans.yml etait
+        // vide, puisque la boucle ne s'executait jamais.
+        if (clansConfig.getConfigurationSection("clans") == null) return false;
+
         for (String clanName : clansConfig.getConfigurationSection("clans").getKeys(false)) {
             List<String> members = clansConfig.getStringList("clans." + clanName + ".members");
+            List<String> coLeaders = clansConfig.getStringList("clans." + clanName + ".co_leader");
+            String leader = clansConfig.getString("clans." + clanName + ".leader");
+
             if (members.contains(player.getName())
-                    ||
-                clansConfig.getString("clans." + clanName + ".co_leader").equals(player.getName())
-                        ||
-                clansConfig.getString("clans." + clanName + ".leader").equals(player.getName())) {
+                    || coLeaders.contains(player.getName())
+                    || player.getName().equals(leader)) {
                 return true;
             }
         }

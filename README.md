@@ -66,3 +66,65 @@ Full setup guides and advanced usage can be found in the [Wiki](../../wiki).
 The plugin stats can be found on [Bstats](https://bstats.org/plugin/bukkit/Simple%20Clans/25416)
 
 ![](https://bstats.org/signatures/bukkit/Simple%20Clans.svg)
+---
+
+## Fork ValBlock
+
+Ce fork ajoute ce qu'il faut pour des **clans appartenant au serveur** plutôt
+qu'à des joueurs : des camps fixes, sans chef humain pour valider les
+adhésions.
+
+### Le problème du plugin d'origine
+
+`/clan join <nom>` dépose une **demande** qu'un chef doit accepter, et
+`onCommand` refuse la console dès sa première ligne. Sur un serveur où les
+clans sont des camps appartenant au serveur, il n'y a personne pour accepter :
+les demandes s'empilent indéfiniment, et aucun automate ne peut placer un
+joueur à la place du chef.
+
+### `Auto_Balance` — attribution automatique et équilibrée
+
+```yaml
+Auto_Balance:
+  enabled: true
+  clans:
+    - Kattegat
+    - Finehair
+```
+
+Quand c'est actif, **`/clan join` ignore l'argument de clan** et attribue au
+joueur le camp le **moins peuplé** de la liste, sans demande ni validation.
+L'écart entre les camps ne dépasse donc jamais un membre.
+
+Le comptage se fait sur l'état réel de `clans.yml` **à chaque attribution**,
+jamais sur un compteur tenu à part. C'est ce qui rend l'équilibre
+auto-correctif : un départ par `/clan leave` ou `/clan kick` creuse un écart
+que l'attribution suivante vient combler toute seule, sans qu'aucune commande
+d'administration n'ait à être lancée.
+
+En cas d'égalité, le premier de la liste l'emporte — déterministe, donc
+testable. Il faut au moins deux clans pour que le mode s'active, et ils doivent
+exister (`/clan create`) avant d'être listés.
+
+### `/clanadmin` — la porte d'entrée console
+
+`/clan` garde son garde-fou « joueur uniquement » intact : la surface
+d'administration est une commande **séparée**, protégée par `clans.admin`.
+
+| Commande | Effet |
+|---|---|
+| `/clanadmin autojoin <joueur>` | attribution équilibrée, exécutable depuis la console |
+| `/clanadmin add <joueur> <clan>` | ajout forcé, sans passer par une demande |
+| `/clanadmin remove <joueur>` | retrait forcé, y compris hors ligne — refuse un chef |
+| `/clanadmin balance` | diagnostic : membres par camp, et le prochain camp attribué |
+
+`autojoin` et `add` exigent que le joueur soit **en ligne** : `AddPlayer` lit
+ses statistiques de kills et de morts pour les ajouter au clan.
+
+### Correctif : `SearchPlayer` levait une `NullPointerException`
+
+`co_leader` est une **liste**, et elle était lue avec `getString`, qui rend
+`null` — le `.equals` qui suivait explosait. Le bug restait invisible tant que
+`clans.yml` était vide, puisque la boucle ne s'exécutait jamais ; il se
+déclenchait dès le **premier clan créé**, cassant `/clan create` pour tout le
+monde. La section `clans` absente n'était pas gardée non plus.

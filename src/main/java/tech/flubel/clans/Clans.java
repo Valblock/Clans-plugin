@@ -56,6 +56,13 @@ public final class Clans extends JavaPlugin implements Listener {
         this.getCommand("clan").setExecutor(this);
         this.getCommand("cc").setExecutor(this);
 
+        // /clanadmin : la seule porte d'entree console du plugin. /clan garde
+        // son garde-fou "joueur uniquement" intact.
+        tech.flubel.clans.Utils.ClanAdminCommand clanAdmin =
+                new tech.flubel.clans.Utils.ClanAdminCommand(this, this.languageManager);
+        this.getCommand("clanadmin").setExecutor(clanAdmin);
+        this.getCommand("clanadmin").setTabCompleter(clanAdmin);
+
         if (Bukkit.getPluginManager().getPlugin("PlaceholderAPI") != null) {
             new ClanPlaceholderExpansion(this).register();
         }
@@ -337,7 +344,19 @@ public final class Clans extends JavaPlugin implements Listener {
                 TransferLeadership transferLeadership = new TransferLeadership(this, this.languageManager);
                 transferLeadership.transferLeadership(player, args[1]);
                 return true;
-            case "join":
+            case "join": {
+                // ATTRIBUTION EQUILIBREE. Quand Auto_Balance est active, le
+                // joueur ne choisit pas son camp et personne n'a a valider :
+                // l'argument de clan est ignore et le camp le moins peuple
+                // l'emporte. C'est le mode des serveurs ou les clans sont des
+                // camps fixes appartenant au serveur, sans chef humain pour
+                // accepter les demandes.
+                AutoBalance autoBalance = new AutoBalance(this, this.languageManager);
+                if (autoBalance.isEnabled()) {
+                    autoBalance.assign(player, player);
+                    return true;
+                }
+
                 if (args.length < 2 || args[1].isEmpty()) {
                     player.sendMessage(ChatColor.GOLD + "" + ChatColor.BOLD + this.getConfig().getString("Plugin_Message_Indicator", "| ") + ChatColor.WHITE + languageManager.get("clan.info.null-clan"));
                     return true;
@@ -345,6 +364,7 @@ public final class Clans extends JavaPlugin implements Listener {
                 ClanJoin clanJoin = new ClanJoin(this, this.languageManager);
                 clanJoin.requestJoinClan(player, args[1]);
                 return true;
+            }
             case "raccept":
                 if (args.length < 2 || args[1].isEmpty()) {
                     player.sendMessage(ChatColor.GOLD + "" + ChatColor.BOLD + this.getConfig().getString("Plugin_Message_Indicator", "| ") + ChatColor.WHITE + languageManager.get("clan.info.naccept"));

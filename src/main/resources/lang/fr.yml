@@ -309,3 +309,14 @@ clanupdater:
   no-clan: "Il n'y a aucun clan à mettre à jour."
   success: "Toutes les configurations de clans ont été mises à jour avec succès vers la dernière configuration."
   error: "Échec de la mise à jour de toutes les configurations de clans vers la dernière configuration."
+admin:
+  usage: "Usage: /clanadmin <autojoin|add|remove|balance> [joueur] [clan]"
+  offline: "Ce joueur doit être connecté."
+  added: "Joueur ajouté au clan."
+  removed: "Joueur retiré de son clan."
+  not-in-clan: "Ce joueur n'appartient à aucun clan."
+  is-leader: "Ce joueur dirige son clan - transférez d'abord la direction."
+  balance-header: "Membres par clan :"
+autobalance:
+  not-configured: "L'attribution automatique est désactivée ou mal configurée."
+  missing-clan: "Le clan %clan_name% n'existe pas."

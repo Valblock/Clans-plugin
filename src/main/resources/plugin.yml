@@ -14,3 +14,11 @@ commands:
   cc:
     description: Sends a message to the clan chat.
     usage: /cc <message>
+  clanadmin:
+    description: Console and staff clan administration.
+    usage: /clanadmin <autojoin|add|remove|balance> [player] [clan]
+    aliases: [ca]
+permissions:
+  clans.admin:
+    description: Grants access to /clanadmin and to the plugin's admin tools.
+    default: op
