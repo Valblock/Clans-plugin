@@ -318,5 +318,6 @@ admin:
   is-leader: "That player leads their clan - transfer leadership first."
   balance-header: "Members per clan:"
 autobalance:
+  clan-full: "&#ccf5f5➔ &#cf4449%clan_name% is full: it cannot be more than &#ccf5f5%gap%&#cf4449 members ahead of the other."
   not-configured: "Automatic balancing is disabled or misconfigured."
   missing-clan: "The clan %clan_name% does not exist."

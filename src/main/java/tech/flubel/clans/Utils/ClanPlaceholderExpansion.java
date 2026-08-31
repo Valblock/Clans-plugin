@@ -43,11 +43,39 @@ public class ClanPlaceholderExpansion extends PlaceholderExpansion {
         return "1.0";
     }
 
+    private AutoBalance balance() {
+        return new AutoBalance(plugin, plugin.getLanguageManager());
+    }
+
     @Override
     public String onPlaceholderRequest(Player player, String identifier) {
         if (player == null) {
             return "";
         }
+        // ---- ajouts du fork : l'etat des camps, pour les menus ----
+        //
+        // Ils ne dependent PAS du joueur : ce sont des effectifs de camp. Ils
+        // repondent donc meme si le joueur n'a pas de clan, ce qui est
+        // precisement le moment ou le menu doit dire s'il reste de la place.
+        //
+        //   %clans_members_Kattegat%   effectif du camp
+        //   %clans_slots_Kattegat%     places restantes avant le plafond
+        //   %clans_canjoin_Kattegat%   "yes" ou "no"
+        //   %clans_maxgap%             l'ecart maximal tolere
+        if (identifier.startsWith("members_")) {
+            return String.valueOf(balance().getMemberCount(identifier.substring(8)));
+        }
+        if (identifier.startsWith("slots_")) {
+            int slots = balance().remainingSlots(identifier.substring(6));
+            return slots == Integer.MAX_VALUE ? "-" : String.valueOf(slots);
+        }
+        if (identifier.startsWith("canjoin_")) {
+            return balance().canJoin(identifier.substring(8)) ? "yes" : "no";
+        }
+        if (identifier.equals("maxgap")) {
+            return String.valueOf(balance().getMaxGap());
+        }
+
         if (identifier.equals("name")) {
             return getPlayerClan(player);
         }

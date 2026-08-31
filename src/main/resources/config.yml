@@ -137,25 +137,30 @@ banned_prefixes:
   - vagina
 
 # -------------------------------------------------------
-# ATTRIBUTION AUTOMATIQUE ET EQUILIBREE
+# EQUILIBRAGE DES CAMPS PAR PLAFOND D'ECART
 #
-# Pensee pour les serveurs ou les clans sont des CAMPS FIXES appartenant au
+# Pense pour les serveurs ou les clans sont des CAMPS FIXES appartenant au
 # serveur, et non des groupes crees par les joueurs. Dans ce cas il n'y a
 # aucun chef humain pour accepter les demandes d'adhesion, et elles
 # s'empileraient indefiniment.
 #
 # Quand enabled vaut true :
-#   - /clan join IGNORE l'argument de clan et attribue au joueur le camp le
-#     MOINS PEUPLE de la liste ci-dessous, sans demande ni validation
-#   - l'ecart entre les camps ne depasse donc jamais un membre
-#   - le comptage se fait sur l'etat reel de clans.yml a chaque attribution,
-#     donc un depart par /clan leave ou /clan kick est rattrape tout seul par
-#     l'attribution suivante
+#   - /clan join <camp> place le joueur IMMEDIATEMENT, sans demande ni
+#     validation. Le joueur CHOISIT son camp.
+#   - mais un camp qui compte deja max_gap membres de plus que l'autre est
+#     FERME : l'ecart ne peut jamais depasser cette marge, et le camp
+#     minoritaire reste toujours ouvert.
+#   - les effectifs sont relus a chaque fois dans clans.yml, donc un depart
+#     par /clan leave ou /clan kick rouvre le camp tout seul.
 #
-# En cas d'egalite, c'est le premier de la liste qui l'emporte.
-# Il faut au moins deux clans pour que le mode s'active.
+# Placeholders exposes pour les menus :
+#   %clans_members_<camp>%   effectif
+#   %clans_slots_<camp>%     places restantes avant le plafond (0 = ferme)
+#   %clans_canjoin_<camp>%   yes / no
+#   %clans_maxgap%           la marge configuree
 #
-# Les clans doivent exister (/clan create) avant d'etre listes ici.
+# Les camps doivent exister (/clan create) avant d'etre listes ici.
 Auto_Balance:
   enabled: false
+  max_gap: 3
   clans: []

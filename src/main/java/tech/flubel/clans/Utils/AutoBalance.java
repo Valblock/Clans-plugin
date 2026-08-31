@@ -10,23 +10,26 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Attribution automatique et equilibree d'un joueur a l'un des clans declares.
+ * Equilibrage des camps par PLAFOND D'ECART.
  *
  * <p>Le plugin d'origine part du principe qu'un clan appartient a un joueur :
  * on cree, on invite, un chef accepte. Sur un serveur ou les clans sont des
- * CAMPS FIXES appartenant au serveur lui-meme, ce modele n'a personne pour
- * accepter les demandes - elles s'empilent indefiniment.
+ * CAMPS FIXES appartenant au serveur, il n'y a personne pour accepter, et les
+ * demandes s'empilent indefiniment.
  *
- * <p>Cette classe repond a ce cas : le joueur ne choisit pas son camp, et
- * personne n'a a valider. Le camp le moins peuple l'emporte, ce qui garantit
- * un ecart d'au plus un membre. En cas d'egalite, c'est l'ordre de la liste de
- * configuration qui tranche - deterministe, donc testable.
+ * <p>LE JOUEUR CHOISIT SON CAMP - c'est un engagement, pas un tirage - mais il
+ * ne peut pas creuser l'ecart indefiniment. Un camp est ferme des qu'il compte
+ * {@code max_gap} membres de plus que l'autre : la marge est toujours d'au plus
+ * trois places, et le camp minoritaire reste toujours ouvert.
  *
- * <p>Le comptage est fait a chaque appel sur l'etat reel de clans.yml, pas sur
- * un compteur tenu a part. C'est ce qui rend l'equilibre AUTO-CORRECTIF : un
- * depart par /clan leave ou /clan kick creuse un ecart que la prochaine
- * attribution vient combler, sans qu'aucune commande d'administration n'ait a
- * etre lancee.
+ * <p>Une premiere version attribuait le camp d'office, au plus petit effectif.
+ * L'ecart n'y depassait jamais un membre, mais le joueur subissait son camp au
+ * lieu de le rejoindre. Le plafond garde la garantie d'equilibre en rendant la
+ * decision au joueur.
+ *
+ * <p>Les effectifs sont relus dans clans.yml A CHAQUE APPEL, jamais gardes dans
+ * un compteur a part : un depart par /clan leave ou /clan kick rouvre donc le
+ * camp tout seul, sans aucune commande d'administration.
  */
 public class AutoBalance {
 
@@ -38,7 +41,7 @@ public class AutoBalance {
         this.languageManager = languageManager;
     }
 
-    /** L'attribution equilibree est-elle active et correctement configuree ? */
+    /** L'equilibrage est-il actif et correctement configure ? */
     public boolean isEnabled() {
         return plugin.getConfig().getBoolean("Auto_Balance.enabled", false)
                 && getClans().size() >= 2;
@@ -48,22 +51,46 @@ public class AutoBalance {
         return plugin.getConfig().getStringList("Auto_Balance.clans");
     }
 
-    /**
-     * Rend le clan le moins peuple parmi ceux declares, ou null si aucun n'est
-     * configure. Les clans absents de clans.yml comptent zero membre : les
-     * ignorer ferait basculer tout le monde du meme cote le jour ou l'un des
-     * deux camps n'existe pas encore.
-     */
-    public String pickClan() {
-        List<String> clans = getClans();
-        if (clans.isEmpty()) return null;
+    /** Ecart maximal tolere entre le camp le plus fourni et le moins fourni. */
+    public int getMaxGap() {
+        return Math.max(1, plugin.getConfig().getInt("Auto_Balance.max_gap", 3));
+    }
 
-        MemberCount memberCount = new MemberCount(plugin);
+    public int getMemberCount(String clanName) {
+        return new MemberCount(plugin).getClanMembersCount(clanName);
+    }
+
+    /** Effectif du camp le MOINS fourni, celui qui sert de reference. */
+    private int smallestCount() {
+        int smallest = Integer.MAX_VALUE;
+        for (String clanName : getClans()) {
+            smallest = Math.min(smallest, getMemberCount(clanName));
+        }
+        return smallest == Integer.MAX_VALUE ? 0 : smallest;
+    }
+
+    /**
+     * Places restantes avant que ce camp n'atteigne le plafond.
+     *
+     * <p>Zero signifie ferme. Le camp le moins fourni rend toujours au moins
+     * {@code max_gap}, donc il n'est jamais possible de tout verrouiller.
+     */
+    public int remainingSlots(String clanName) {
+        if (!isEnabled()) return Integer.MAX_VALUE;
+        int gap = getMemberCount(clanName) - smallestCount();
+        return Math.max(0, getMaxGap() - gap);
+    }
+
+    public boolean canJoin(String clanName) {
+        return remainingSlots(clanName) > 0;
+    }
+
+    /** Le camp le moins fourni - utilise par /clanadmin autojoin. */
+    public String pickClan() {
         String best = null;
         int bestCount = Integer.MAX_VALUE;
-
-        for (String clanName : clans) {
-            int count = memberCount.getClanMembersCount(clanName);
+        for (String clanName : getClans()) {
+            int count = getMemberCount(clanName);
             if (count < bestCount) {
                 bestCount = count;
                 best = clanName;
@@ -73,52 +100,61 @@ public class AutoBalance {
     }
 
     /**
-     * Attribue un camp au joueur et l'y ajoute immediatement.
+     * Place un joueur dans un camp donne, en verifiant le plafond.
      *
-     * @param player  le joueur a placer, qui doit etre en ligne
-     * @param notify  destinataire des messages d'erreur ; peut etre le joueur
-     *                lui-meme ou un administrateur, et peut etre null quand
-     *                l'appel vient de la console
+     * @param player   le joueur a placer, qui doit etre en ligne
+     * @param clanName le camp vise ; null pour laisser le moins fourni
+     * @param notify   destinataire des refus ; peut etre null
      * @return true si le joueur a bien ete place
      */
-    public boolean assign(Player player, org.bukkit.command.CommandSender notify) {
+    public boolean join(Player player, String clanName, org.bukkit.command.CommandSender notify) {
         SearchPlayer searchPlayer = new SearchPlayer(plugin);
         if (searchPlayer.isPlayerInClan(player)) {
-            if (notify != null) {
-                notify.sendMessage(ChatColor.RED + "" + ChatColor.BOLD
-                        + plugin.getConfig().getString("Plugin_Message_Indicator", "| ")
-                        + ChatColor.RED + languageManager.get("join.already-member"));
-            }
+            deny(notify, languageManager.get("join.already-member"));
             return false;
         }
 
-        String clanName = pickClan();
+        if (clanName == null) clanName = pickClan();
         if (clanName == null) {
-            if (notify != null) {
-                notify.sendMessage(ChatColor.RED + "" + ChatColor.BOLD
-                        + plugin.getConfig().getString("Plugin_Message_Indicator", "| ")
-                        + ChatColor.RED + languageManager.get("autobalance.not-configured"));
-            }
+            deny(notify, languageManager.get("autobalance.not-configured"));
             return false;
         }
 
-        if (!plugin.getConfig().contains("clans." + clanName)
-                && !clanExists(clanName)) {
-            if (notify != null) {
-                Map<String, String> placeholders = new HashMap<>();
-                placeholders.put("clan_name", clanName);
-                notify.sendMessage(ChatColor.RED + "" + ChatColor.BOLD
-                        + plugin.getConfig().getString("Plugin_Message_Indicator", "| ")
-                        + ChatColor.RED + languageManager.get("autobalance.missing-clan", placeholders));
+        // On retrouve l'orthographe declaree en configuration : le joueur tape
+        // "kattegat", clans.yml connait "Kattegat".
+        for (String declared : getClans()) {
+            if (declared.equalsIgnoreCase(clanName)) {
+                clanName = declared;
+                break;
             }
+        }
+
+        if (!clanExists(clanName)) {
+            Map<String, String> placeholders = new HashMap<>();
+            placeholders.put("clan_name", clanName);
+            deny(notify, languageManager.get("autobalance.missing-clan", placeholders));
+            return false;
+        }
+
+        if (!canJoin(clanName)) {
+            Map<String, String> placeholders = new HashMap<>();
+            placeholders.put("clan_name", clanName);
+            placeholders.put("gap", String.valueOf(getMaxGap()));
+            deny(notify, languageManager.get("autobalance.clan-full", placeholders));
             return false;
         }
 
         // PlayerAdder ecrit dans clans.yml, controle max_members et previent le
         // joueur lui-meme. Rien de tout cela n'est reecrit ici.
-        AddPlayer addPlayer = new AddPlayer(plugin, languageManager);
-        addPlayer.PlayerAdder(clanName, player);
+        new AddPlayer(plugin, languageManager).PlayerAdder(clanName, player);
         return true;
+    }
+
+    private void deny(org.bukkit.command.CommandSender notify, String message) {
+        if (notify == null) return;
+        notify.sendMessage(ChatColor.RED + "" + ChatColor.BOLD
+                + plugin.getConfig().getString("Plugin_Message_Indicator", "| ")
+                + ChatColor.RED + message);
     }
 
     private boolean clanExists(String clanName) {

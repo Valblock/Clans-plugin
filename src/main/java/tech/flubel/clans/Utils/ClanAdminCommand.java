@@ -88,7 +88,7 @@ public class ClanAdminCommand implements CommandExecutor, TabCompleter {
                     reply(sender, ChatColor.RED, lang().get("autobalance.not-configured"));
                     return true;
                 }
-                autoBalance.assign(target, sender);
+                autoBalance.join(target, null, sender);
                 return true;
             }
 

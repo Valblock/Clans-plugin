@@ -351,15 +351,19 @@ public final class Clans extends JavaPlugin implements Listener {
                 transferLeadership.transferLeadership(player, args[1]);
                 return true;
             case "join": {
-                // ATTRIBUTION EQUILIBREE. Quand Auto_Balance est active, le
-                // joueur ne choisit pas son camp et personne n'a a valider :
-                // l'argument de clan est ignore et le camp le moins peuple
-                // l'emporte. C'est le mode des serveurs ou les clans sont des
-                // camps fixes appartenant au serveur, sans chef humain pour
-                // accepter les demandes.
+                // PLAFOND D'ECART. Quand Auto_Balance est active, le joueur
+                // CHOISIT son camp - c'est un engagement, pas un tirage - mais
+                // il ne peut pas creuser l'ecart : un camp qui compte max_gap
+                // membres de plus que l'autre est ferme. Et l'adhesion est
+                // immediate, sans demande a valider : ces camps appartiennent
+                // au serveur et n'ont aucun chef pour accepter.
                 AutoBalance autoBalance = new AutoBalance(this, this.languageManager);
                 if (autoBalance.isEnabled()) {
-                    autoBalance.assign(player, player);
+                    if (args.length < 2 || args[1].isEmpty()) {
+                        player.sendMessage(ChatColor.GOLD + "" + ChatColor.BOLD + this.getConfig().getString("Plugin_Message_Indicator", "| ") + ChatColor.WHITE + languageManager.get("clan.info.null-clan"));
+                        return true;
+                    }
+                    autoBalance.join(player, args[1], player);
                     return true;
                 }
 

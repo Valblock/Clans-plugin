@@ -318,5 +318,6 @@ admin:
   is-leader: "&#ccf5f5➔ &#cf4449Ce joueur dirige son clan - transférez d'abord la direction."
   balance-header: "&#ccf5f5➔ &fMembres par clan :"
 autobalance:
+  clan-full: "&#ccf5f5➔ &#cf4449Le clan &#ccf5f5%clan_name%&#cf4449 est complet : il ne peut pas compter plus de &#ccf5f5%gap%&#cf4449 membres d'avance sur l'autre."
   not-configured: "&#ccf5f5➔ &#cf4449L'attribution automatique est désactivée ou mal configurée."
   missing-clan: "&#ccf5f5➔ &#cf4449Le clan &#ccf5f5%clan_name%&#cf4449 n'existe pas."
