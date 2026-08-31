@@ -110,8 +110,10 @@ public class ClanPlaceholderExpansion extends PlaceholderExpansion {
         File clansFile = new File(plugin.getDataFolder(), "clans.yml");
         FileConfiguration clansConfig = YamlConfiguration.loadConfiguration(clansFile);
 
+        if (clansConfig.getConfigurationSection("clans") == null) return "";
+
         for (String clanName : clansConfig.getConfigurationSection("clans").getKeys(false)) {
-            if (clansConfig.getString("clans." + clanName + ".leader").equals(player.getName()) ||
+            if (player.getName().equals(clansConfig.getString("clans." + clanName + ".leader")) ||
                     clansConfig.getStringList("clans." + clanName + ".co_leader").contains(player.getName()) ||
                     clansConfig.getStringList("clans." + clanName + ".members").contains(player.getName())) {
                 return formatClanPrefix(clansConfig.getString("clans." + clanName + ".prefix") + " ");
@@ -124,8 +126,10 @@ public class ClanPlaceholderExpansion extends PlaceholderExpansion {
         File clansFile = new File(plugin.getDataFolder(), "clans.yml");
         FileConfiguration clansConfig = YamlConfiguration.loadConfiguration(clansFile);
 
+        if (clansConfig.getConfigurationSection("clans") == null) return "";
+
         for (String clanName : clansConfig.getConfigurationSection("clans").getKeys(false)) {
-            if (clansConfig.getString("clans." + clanName + ".leader").equals(player.getName()) ||
+            if (player.getName().equals(clansConfig.getString("clans." + clanName + ".leader")) ||
                     clansConfig.getStringList("clans." + clanName + ".co_leader").contains(player.getName()) ||
                     clansConfig.getStringList("clans." + clanName + ".members").contains(player.getName())) {
 
@@ -150,8 +154,10 @@ public class ClanPlaceholderExpansion extends PlaceholderExpansion {
         File clansFile = new File(plugin.getDataFolder(), "clans.yml");
         FileConfiguration clansConfig = YamlConfiguration.loadConfiguration(clansFile);
 
+        if (clansConfig.getConfigurationSection("clans") == null) return "";
+
         for (String clanName : clansConfig.getConfigurationSection("clans").getKeys(false)) {
-            if (clansConfig.getString("clans." + clanName + ".leader").equals(player.getName()) ||
+            if (player.getName().equals(clansConfig.getString("clans." + clanName + ".leader")) ||
                     clansConfig.getStringList("clans." + clanName + ".co_leader").contains(player.getName()) ||
                     clansConfig.getStringList("clans." + clanName + ".members").contains(player.getName())) {
 
@@ -173,6 +179,8 @@ public class ClanPlaceholderExpansion extends PlaceholderExpansion {
 
         // Calculate ranks
         Map<String, Double> clanRanks = new HashMap<>();
+        if (clansConfig.getConfigurationSection("clans") == null) return "";
+
         for (String clanName : clansConfig.getConfigurationSection("clans").getKeys(false)) {
             int members = clansConfig.getStringList("clans." + clanName + ".members").size();
             int coLeaders = clansConfig.getStringList("clans." + clanName + ".co_leader").size();
@@ -227,8 +235,10 @@ public class ClanPlaceholderExpansion extends PlaceholderExpansion {
         File clansFile = new File(plugin.getDataFolder(), "clans.yml");
         FileConfiguration clansConfig = YamlConfiguration.loadConfiguration(clansFile);
 
+        if (clansConfig.getConfigurationSection("clans") == null) return "";
+
         for (String clanName : clansConfig.getConfigurationSection("clans").getKeys(false)) {
-            if (clansConfig.getString("clans." + clanName + ".leader").equals(player.getName()) ||
+            if (player.getName().equals(clansConfig.getString("clans." + clanName + ".leader")) ||
                     clansConfig.getStringList("clans." + clanName + ".co_leader").contains(player.getName()) ||
                     clansConfig.getStringList("clans." + clanName + ".members").contains(player.getName())) {
 
