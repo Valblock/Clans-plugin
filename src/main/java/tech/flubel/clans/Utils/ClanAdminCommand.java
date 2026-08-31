@@ -35,12 +35,23 @@ import java.util.stream.Collectors;
  */
 public class ClanAdminCommand implements CommandExecutor, TabCompleter {
 
-    private final JavaPlugin plugin;
-    private final LanguageManager languageManager;
+    private final tech.flubel.clans.Clans plugin;
 
-    public ClanAdminCommand(JavaPlugin plugin, LanguageManager languageManager) {
+    public ClanAdminCommand(tech.flubel.clans.Clans plugin) {
         this.plugin = plugin;
-        this.languageManager = languageManager;
+    }
+
+    /**
+     * Lu a chaque appel plutot que garde dans un champ.
+     *
+     * <p>La premiere version prenait le LanguageManager en parametre de
+     * constructeur, et la commande etait enregistree dans onEnable AVANT que le
+     * plugin ne cree le sien : le champ valait null et la premiere commande
+     * levait une NullPointerException. Le relire ici rend l'ordre
+     * d'initialisation sans importance.
+     */
+    private LanguageManager lang() {
+        return plugin.getLanguageManager();
     }
 
     private void reply(CommandSender sender, ChatColor color, String message) {
@@ -52,29 +63,29 @@ public class ClanAdminCommand implements CommandExecutor, TabCompleter {
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
         if (!sender.hasPermission("clans.admin")) {
-            reply(sender, ChatColor.RED, languageManager.get("clan.info.no-perm"));
+            reply(sender, ChatColor.RED, lang().get("clan.info.no-perm"));
             return true;
         }
 
         if (args.length < 1) {
-            reply(sender, ChatColor.GOLD, languageManager.get("admin.usage"));
+            reply(sender, ChatColor.GOLD, lang().get("admin.usage"));
             return true;
         }
 
         switch (args[0].toLowerCase()) {
             case "autojoin": {
                 if (args.length < 2) {
-                    reply(sender, ChatColor.GOLD, languageManager.get("admin.usage"));
+                    reply(sender, ChatColor.GOLD, lang().get("admin.usage"));
                     return true;
                 }
                 Player target = Bukkit.getPlayerExact(args[1]);
                 if (target == null) {
-                    reply(sender, ChatColor.RED, languageManager.get("admin.offline"));
+                    reply(sender, ChatColor.RED, lang().get("admin.offline"));
                     return true;
                 }
-                AutoBalance autoBalance = new AutoBalance(plugin, languageManager);
+                AutoBalance autoBalance = new AutoBalance(plugin, lang());
                 if (!autoBalance.isEnabled()) {
-                    reply(sender, ChatColor.RED, languageManager.get("autobalance.not-configured"));
+                    reply(sender, ChatColor.RED, lang().get("autobalance.not-configured"));
                     return true;
                 }
                 autoBalance.assign(target, sender);
@@ -83,28 +94,28 @@ public class ClanAdminCommand implements CommandExecutor, TabCompleter {
 
             case "add": {
                 if (args.length < 3) {
-                    reply(sender, ChatColor.GOLD, languageManager.get("admin.usage"));
+                    reply(sender, ChatColor.GOLD, lang().get("admin.usage"));
                     return true;
                 }
                 Player target = Bukkit.getPlayerExact(args[1]);
                 if (target == null) {
-                    reply(sender, ChatColor.RED, languageManager.get("admin.offline"));
+                    reply(sender, ChatColor.RED, lang().get("admin.offline"));
                     return true;
                 }
                 String clanName = args[2];
                 if (!clanExists(clanName)) {
                     Map<String, String> placeholders = new HashMap<>();
                     placeholders.put("clan_name", clanName);
-                    reply(sender, ChatColor.RED, languageManager.get("autobalance.missing-clan", placeholders));
+                    reply(sender, ChatColor.RED, lang().get("autobalance.missing-clan", placeholders));
                     return true;
                 }
                 SearchPlayer searchPlayer = new SearchPlayer(plugin);
                 if (searchPlayer.isPlayerInClan(target)) {
-                    reply(sender, ChatColor.RED, languageManager.get("join.already-member"));
+                    reply(sender, ChatColor.RED, lang().get("join.already-member"));
                     return true;
                 }
-                new AddPlayer(plugin, languageManager).PlayerAdder(clanName, target);
-                reply(sender, ChatColor.GREEN, languageManager.get("admin.added"));
+                new AddPlayer(plugin, lang()).PlayerAdder(clanName, target);
+                reply(sender, ChatColor.GREEN, lang().get("admin.added"));
                 return true;
             }
 
@@ -114,14 +125,14 @@ public class ClanAdminCommand implements CommandExecutor, TabCompleter {
             // le clan se retrouverait sans proprietaire.
             case "remove": {
                 if (args.length < 2) {
-                    reply(sender, ChatColor.GOLD, languageManager.get("admin.usage"));
+                    reply(sender, ChatColor.GOLD, lang().get("admin.usage"));
                     return true;
                 }
                 String name = args[1];
                 File clansFile = new File(plugin.getDataFolder(), "clans.yml");
                 FileConfiguration clansConfig = YamlConfiguration.loadConfiguration(clansFile);
                 if (!clansConfig.contains("clans")) {
-                    reply(sender, ChatColor.RED, languageManager.get("admin.not-in-clan"));
+                    reply(sender, ChatColor.RED, lang().get("admin.not-in-clan"));
                     return true;
                 }
 
@@ -129,7 +140,7 @@ public class ClanAdminCommand implements CommandExecutor, TabCompleter {
                 for (String clanName : clansConfig.getConfigurationSection("clans").getKeys(false)) {
                     String leader = clansConfig.getString("clans." + clanName + ".leader");
                     if (name.equalsIgnoreCase(leader)) {
-                        reply(sender, ChatColor.RED, languageManager.get("admin.is-leader"));
+                        reply(sender, ChatColor.RED, lang().get("admin.is-leader"));
                         return true;
                     }
                     List<String> members = clansConfig.getStringList("clans." + clanName + ".members");
@@ -144,14 +155,14 @@ public class ClanAdminCommand implements CommandExecutor, TabCompleter {
                 }
 
                 if (!removed) {
-                    reply(sender, ChatColor.RED, languageManager.get("admin.not-in-clan"));
+                    reply(sender, ChatColor.RED, lang().get("admin.not-in-clan"));
                     return true;
                 }
                 try {
                     clansConfig.save(clansFile);
-                    reply(sender, ChatColor.GREEN, languageManager.get("admin.removed"));
+                    reply(sender, ChatColor.GREEN, lang().get("admin.removed"));
                 } catch (Exception e) {
-                    reply(sender, ChatColor.RED, languageManager.get("add.error"));
+                    reply(sender, ChatColor.RED, lang().get("add.error"));
                     e.printStackTrace();
                 }
                 return true;
@@ -159,14 +170,14 @@ public class ClanAdminCommand implements CommandExecutor, TabCompleter {
 
             // Diagnostic : l'etat de l'equilibre, en une ligne par camp.
             case "balance": {
-                AutoBalance autoBalance = new AutoBalance(plugin, languageManager);
+                AutoBalance autoBalance = new AutoBalance(plugin, lang());
                 List<String> clans = autoBalance.getClans();
                 if (clans.isEmpty()) {
-                    reply(sender, ChatColor.RED, languageManager.get("autobalance.not-configured"));
+                    reply(sender, ChatColor.RED, lang().get("autobalance.not-configured"));
                     return true;
                 }
                 MemberCount memberCount = new MemberCount(plugin);
-                reply(sender, ChatColor.GOLD, languageManager.get("admin.balance-header"));
+                reply(sender, ChatColor.GOLD, lang().get("admin.balance-header"));
                 for (String clanName : clans) {
                     sender.sendMessage(ChatColor.GRAY + "  " + clanName + ": "
                             + ChatColor.WHITE + memberCount.getClanMembersCount(clanName));
@@ -176,7 +187,7 @@ public class ClanAdminCommand implements CommandExecutor, TabCompleter {
             }
 
             default:
-                reply(sender, ChatColor.GOLD, languageManager.get("admin.usage"));
+                reply(sender, ChatColor.GOLD, lang().get("admin.usage"));
                 return true;
         }
     }

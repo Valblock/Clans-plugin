@@ -56,13 +56,6 @@ public final class Clans extends JavaPlugin implements Listener {
         this.getCommand("clan").setExecutor(this);
         this.getCommand("cc").setExecutor(this);
 
-        // /clanadmin : la seule porte d'entree console du plugin. /clan garde
-        // son garde-fou "joueur uniquement" intact.
-        tech.flubel.clans.Utils.ClanAdminCommand clanAdmin =
-                new tech.flubel.clans.Utils.ClanAdminCommand(this, this.languageManager);
-        this.getCommand("clanadmin").setExecutor(clanAdmin);
-        this.getCommand("clanadmin").setTabCompleter(clanAdmin);
-
         if (Bukkit.getPluginManager().getPlugin("PlaceholderAPI") != null) {
             new ClanPlaceholderExpansion(this).register();
         }
@@ -101,6 +94,19 @@ public final class Clans extends JavaPlugin implements Listener {
 
 
         this.languageManager = new LanguageManager(this);
+
+        // /clanadmin : la seule porte d'entree console du plugin. /clan garde
+        // son garde-fou "joueur uniquement" intact.
+        //
+        // L'ENREGISTREMENT DOIT RESTER ICI, APRES le LanguageManager. Il etait
+        // plus haut, avec ceux de /clan et /cc, et recevait donc un
+        // languageManager encore nul : la premiere commande levait une
+        // NullPointerException. /clan et /cc n'en souffraient pas parce qu'ils
+        // ont le plugin lui-meme pour executeur et relisent le champ au moment
+        // de la commande, pas a l'enregistrement.
+        ClanAdminCommand clanAdmin = new ClanAdminCommand(this);
+        this.getCommand("clanadmin").setExecutor(clanAdmin);
+        this.getCommand("clanadmin").setTabCompleter(clanAdmin);
 
 
         getLogger().info("\u001B[38;2;23;138;214m================================================\u001B[0m");
