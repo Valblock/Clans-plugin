@@ -72,6 +72,18 @@ public class ClanPlaceholderExpansion extends PlaceholderExpansion {
         if (identifier.startsWith("canjoin_")) {
             return balance().canJoin(identifier.substring(8)) ? "yes" : "no";
         }
+        // Etat du delai, pour que le menu montre l'attente au lieu des boutons.
+        //
+        //   %clans_cooldown%     "yes" si le joueur doit patienter
+        //   %clans_freeswitch%   "yes" s'il lui reste son changement offert
+        if (identifier.equals("cooldown")) {
+            return new LeaveCooldown(plugin, plugin.getLanguageManager())
+                    .isOnCooldown(player) ? "yes" : "no";
+        }
+        if (identifier.equals("freeswitch")) {
+            return new LeaveCooldown(plugin, plugin.getLanguageManager())
+                    .hasFreeSwitch(player) ? "yes" : "no";
+        }
         if (identifier.equals("maxgap")) {
             return String.valueOf(balance().getMaxGap());
         }

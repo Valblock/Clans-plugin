@@ -114,6 +114,15 @@ public class AutoBalance {
             return false;
         }
 
+        // Le delai d'apres-depart passe AVANT le plafond : un joueur qui vient
+        // de quitter doit s'entendre dire qu'il doit patienter, pas que le camp
+        // est complet.
+        LeaveCooldown cooldown = new LeaveCooldown(plugin, languageManager);
+        if (cooldown.isOnCooldown(player)) {
+            cooldown.denyJoin(notify);
+            return false;
+        }
+
         if (clanName == null) clanName = pickClan();
         if (clanName == null) {
             deny(notify, languageManager.get("autobalance.not-configured"));

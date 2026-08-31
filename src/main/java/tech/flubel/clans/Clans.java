@@ -314,10 +314,23 @@ public final class Clans extends JavaPlugin implements Listener {
                 ListPlayers listPlayers = new ListPlayers(this, this.languageManager);
                 listPlayers.PlayerLister(player);
                 return true;
-            case "leave":
+            case "leave": {
+                // On regarde AVANT et APRES : clanleaver ne rend rien, et il
+                // refuse dans plusieurs cas - joueur sans clan, chef de clan.
+                // Comparer l'appartenance est le seul moyen fiable de savoir si
+                // le depart a vraiment eu lieu, et donc de ne poser le delai
+                // qu'a ce moment-la.
+                SearchPlayer avant = new SearchPlayer(this);
+                boolean etaitDansUnClan = avant.isPlayerInClan(player);
+
                 LeaveClan leaveClan = new LeaveClan(this, this.languageManager);
                 leaveClan.clanleaver(player);
+
+                if (etaitDansUnClan && !new SearchPlayer(this).isPlayerInClan(player)) {
+                    new LeaveCooldown(this, this.languageManager).applyOnLeave(player);
+                }
                 return true;
+            }
             case "promote":
                 if (args.length < 2 || args[1].isEmpty()) {
                     player.sendMessage(ChatColor.GOLD + "" + ChatColor.BOLD + this.getConfig().getString("Plugin_Message_Indicator", "| ") + ChatColor.WHITE + languageManager.get("clan.info.nprom"));

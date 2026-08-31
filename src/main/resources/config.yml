@@ -164,3 +164,30 @@ Auto_Balance:
   enabled: false
   max_gap: 3
   clans: []
+
+# -------------------------------------------------------
+# DELAI ENTRE DEUX CLANS
+#
+# Quitter son camp ne doit pas etre gratuit : sans frein, un joueur suivrait
+# le camp qui mene et le classement n'aurait plus de sens. Mais un premier
+# choix se fait mal informe, donc UN changement est offert, une seule fois.
+# Ensuite, il faut patienter.
+#
+# Le delai est tenu par LUCKPERMS, sous forme de permission temporaire :
+# il sait deja les faire expirer, les stocke en base, les partage entre
+# serveurs et les expose a PlaceholderAPI. Un fichier maison demanderait de
+# reecrire tout cela.
+#
+#   permission              temporaire, posee au depart, expire seule
+#   free_switch_permission  permanente, marque le changement offert consomme
+#   server                  contexte LuckPerms ; vide pour aucun
+#
+# duration suit la syntaxe de LuckPerms : 7d, 24h, 30m...
+Leave_Cooldown:
+  enabled: true
+  duration: 7d
+  free_switch: true
+  permission: clans.cooldown
+  free_switch_permission: clans.switch.used
+  server: ''
+

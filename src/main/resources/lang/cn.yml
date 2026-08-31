@@ -122,6 +122,9 @@ list_clans:
   header: "热门部落列表："
   leader_title: "领袖"
 leave:
+  free-switch-used: "&#ccf5f5➔ &#5dca72You used your &#ccf5f5free switch&#5dca72: you can join a clan right away. The next time you leave, you will have to wait."
+  cooldown-set: "&#ccf5f5➔ &#cf4449You left your clan. You must wait &#ccf5f5%duration%&#cf4449 before joining another."
+  cooldown-active: "&#ccf5f5➔ &#cf4449You left a clan recently. Wait a little longer before joining one."
   no-clan: "您还没有加入任何部落！"
   no-clan-err: "未找到任何部落。"
   leader-warn: "部落领袖不能退出部落。请先转移领导权。"

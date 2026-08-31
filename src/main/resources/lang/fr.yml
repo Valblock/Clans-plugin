@@ -122,6 +122,9 @@ list_clans:
   header: "&#ccf5f5➔ &fListe des meilleurs clans :"
   leader_title: "&#ccf5f5➔ &fChef"
 leave:
+  free-switch-used: "&#ccf5f5➔ &#5dca72Vous avez utilisé votre &#ccf5f5changement offert&#5dca72 : vous pouvez rejoindre un clan immédiatement. Le prochain départ coûtera une attente."
+  cooldown-set: "&#ccf5f5➔ &#cf4449Vous avez quitté votre clan. Vous devrez patienter &#ccf5f5%duration%&#cf4449 avant d'en rejoindre un autre."
+  cooldown-active: "&#ccf5f5➔ &#cf4449Vous avez quitté un clan récemment. Patientez encore avant d'en rejoindre un."
   no-clan: "&#ccf5f5➔ &fVous n'êtes pas dans un clan !"
   no-clan-err: "&#ccf5f5➔ &fAucun clan trouvé."
   leader-warn: "&#ccf5f5➔ &fLes chefs ne peuvent pas quitter le clan. Transférez le leadership."

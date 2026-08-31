@@ -122,6 +122,9 @@ list_clans:
   header: "Список топ-кланов:"
   leader_title: "Лидер"
 leave:
+  free-switch-used: "&#ccf5f5➔ &#5dca72You used your &#ccf5f5free switch&#5dca72: you can join a clan right away. The next time you leave, you will have to wait."
+  cooldown-set: "&#ccf5f5➔ &#cf4449You left your clan. You must wait &#ccf5f5%duration%&#cf4449 before joining another."
+  cooldown-active: "&#ccf5f5➔ &#cf4449You left a clan recently. Wait a little longer before joining one."
   no-clan: "Вы не состоите в клане!"
   no-clan-err: "Кланы не найдены."
   leader-warn: "Лидеры не могут покинуть клан. Передайте лидерство."
